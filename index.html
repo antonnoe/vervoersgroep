@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://czypzinmqgixqmxnvhxk.supabase.co;">
-    
     <title>Vervoerscentrale</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -23,7 +21,12 @@
             <input type="text" name="naar_plaats" placeholder="Naar (plaats)" required>
             <input type="date" name="vertrekdatum" required>
             <textarea name="details" placeholder="Details (aantal personen, bagage, etc.)"></textarea>
-            <input type="text" name="contact_info" placeholder="Link naar je NING profiel" required>
+            
+            <div class="contact-info-wrapper">
+                <input type="text" name="contact_info" placeholder="Link naar je NING profiel" required>
+                <button type="button" id="help-button" title="Hoe vind ik mijn profiel URL?">?</button>
+            </div>
+            
             <button type="submit">Plaats oproep</button>
         </form>
 
