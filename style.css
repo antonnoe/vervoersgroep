@@ -1,149 +1,21 @@
 /* --- Algemene Stijlen --- */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f0f2f5; /* Lichte achtergrond voor de hele pagina */
-    color: #333;
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-hr {
-    border: none;
-    border-top: 1px solid #ddd;
-    margin: 40px 0;
-}
-
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 20px; }
+.container { max-width: 800px; margin: 0 auto; }
+hr { border: none; border-top: 1px solid #ddd; margin: 40px 0; }
 /* --- Formulier Opmaak --- */
-.form-container {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.form-container h2 {
-    margin-top: 0;
-    color: #800000; /* Steunkleur */
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    font-size: 0.9em;
-}
-
-input[type="text"],
-input[type="date"],
-select,
-textarea {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box; /* Zorgt dat padding de breedte niet beïnvloedt */
-    font-size: 1em;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: #800000; /* Steunkleur bij focus */
-    box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
-}
-
-textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-
-.form-row {
-    display: flex;
-    gap: 20px;
-}
-.form-group {
-    flex: 1;
-}
-
-button[type="submit"] {
-    width: 100%;
-    padding: 15px;
-    background-color: #800000; /* Steunkleur */
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1.1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-button[type="submit"]:hover {
-    background-color: #a00000; /* Iets lichtere kleur bij hover */
-}
-
-.contact-info-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px; /* Zorgt voor ruimte onder dit veld */
-}
-.contact-info-wrapper input {
-    margin-bottom: 0;
-    flex-grow: 1;
-}
-#help-button {
-    width: 38px;
-    height: 38px;
-    flex-shrink: 0;
-    padding: 0;
-    font-weight: bold;
-    font-size: 1.2em;
-    border-radius: 50%;
-    border: 1px solid #ccc;
-    background-color: #f0f2f5;
-    cursor: pointer;
-}
-
+.form-container { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.form-container h2 { margin-top: 0; color: #800000; }
+label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; }
+input[type="text"], input[type="date"], input[type="email"], select, textarea { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; transition: border-color 0.2s, box-shadow 0.2s; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: #800000; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
+textarea { min-height: 100px; resize: vertical; }
+.form-row { display: flex; gap: 20px; }
+.form-group { flex: 1; }
+button[type="submit"] { width: 100%; padding: 15px; background-color: #800000; color: white; border: none; border-radius: 6px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
+button[type="submit"]:hover { background-color: #a00000; }
 /* --- Rit Tegels (Listings) --- */
-.rit-item {
-    background-color: #f9f9f9; /* Lichtgrijze achtergrond */
-    border: 1px solid #ddd;
-    border-left: 5px solid #800000; /* Steunkleur als accent */
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-.rit-item h3 {
-    margin-top: 0;
-    color: #800000; /* Steunkleur */
-    text-transform: capitalize;
-}
-
-.rit-item p {
-    margin: 5px 0;
-    line-height: 1.5;
-}
-
-.rit-item a {
-    color: #800000; /* Steunkleur */
-    font-weight: bold;
-}
-
-/* --- Stijlen voor de Modal (Pop-up) --- */
-/* Deze blijven ongewijzigd, maar zijn hier voor de volledigheid */
-.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
-.modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; position: relative; }
-.close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
-.close-button:hover, .close-button:focus { color: black; text-decoration: none; cursor: pointer; }
-.modal-content h3 { margin-top: 0; }
-.modal-content ol { padding-left: 20px; }
-.modal-content li { margin-bottom: 10px; }
+.rit-item { background-color: #f9f9f9; border: 1px solid #ddd; border-left: 5px solid #800000; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.rit-item h3 { margin-top: 0; color: #800000; text-transform: capitalize; }
+.rit-item p { margin: 5px 0; line-height: 1.5; }
+.rit-item a { color: #800000; font-weight: bold; }
+.delete-button { padding: 8px 12px; background-color: #c00; color: white; border: none; border-radius: 4px; cursor: pointer; }
