@@ -1,63 +1,57 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://czypzinmqgixqmxnvhxk.supabase.co;">
+    <title>Vervoerscentrale</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
     <div class="container">
+        
+        <div class="form-container">
+            <h2>Plaats een nieuwe oproep</h2>
+            <form id="vervoer-form">
+                
+                <label for="type">Ik wil graag...</label>
+                <select name="type" id="type">
+                    <option value="aanbod_lift">Een lift aanbieden</option>
+                    <option value="vraag_lift">Een lift aanvragen</option>
+                    <option value="aanbod_transport">Goederentransport aanbieden</option>
+                    <option value="vraag_transport">Goederentransport aanvragen</option>
+                </select>
 
-        <div id="auth-container">
-            <div class="form-container">
-                <h2>Inloggen Vervoerscentrale</h2>
-                <form id="login-form">
-                    <label for="login-email">E-mailadres</label>
-                    <input type="email" id="login-email" required>
-                    <label for="login-password">Wachtwoord</label>
-                    <input type="password" id="login-password" required>
-                    <button type="submit">Inloggen</button>
-                </form>
-                <p class="auth-switch">Nog geen account? <a href="#" id="show-register">Registreer hier</a></p>
-            </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="van_plaats">Van (plaats)</label>
+                        <input type="text" id="van_plaats" name="van_plaats" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="naar_plaats">Naar (plaats)</label>
+                        <input type="text" id="naar_plaats" name="naar_plaats" required>
+                    </div>
+                </div>
 
-            <div class="form-container" id="register-container" style="display:none;">
-                <h2>Registreren</h2>
-                <form id="register-form">
-                    <label for="register-email">E-mailadres</label>
-                    <input type="email" id="register-email" required>
-                    <label for="register-password">Wachtwoord</label>
-                    <input type="password" id="register-password" required>
-                    <button type="submit">Registreren</button>
-                </form>
-                <p class="auth-switch">Al een account? <a href="#" id="show-login">Log hier in</a></p>
-            </div>
+                <label for="vertrekdatum">Datum</label>
+                <input type="date" id="vertrekdatum" name="vertrekdatum" required>
+                
+                <label for="details">Details</label>
+                <textarea id="details" name="details" placeholder="Bijv: aantal personen, bagage, beschrijving goederen, datum is flexibel (+/- 3 dagen), etc."></textarea>
+                
+                <label for="contact_info">Jouw e-mailadres</label>
+                <input type="email" id="contact_info" name="contact_info" placeholder="Hier ontvang je de bewerk-link" required>
+                
+                <button type="submit">Plaats oproep</button>
+            </form>
         </div>
 
-        <div id="app-container" style="display:none;">
-            <div class="user-info">
-                <span>Ingelogd als: <strong id="user-email"></strong></span>
-                <button id="logout-button">Uitloggen</button>
-            </div>
-            
-            <div class="form-container">
-                 <h2>Plaats een nieuwe oproep</h2>
-                 <form id="vervoer-form">
-                    <label for="type">Ik wil graag...</label>
-                    <select name="type" id="type">
-                        <option value="aanbod_lift">Een lift aanbieden</option>
-                        <option value="vraag_lift">Een lift aanvragen</option>
-                        <option value="aanbod_transport">Goederentransport aanbieden</option>
-                        <option value="vraag_transport">Goederentransport aanvragen</option>
-                    </select>
-                    <button type="submit">Plaats oproep</button>
-                 </form>
-            </div>
+        <hr>
 
-            <hr>
-            <h2>Actuele Vraag & Aanbod</h2>
-            <div id="ritten-lijst"></div>
-        </div>
+        <h2>Actuele Vraag & Aanbod</h2>
+        <div id="ritten-lijst"><p>Laden...</p></div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script src="script.js"></script>
 </body>
 </html>
