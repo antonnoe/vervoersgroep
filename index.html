@@ -1,76 +1,16 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://czypzinmqgixqmxnvhxk.supabase.co;">
-    <title>Vervoerscentrale</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+    </head>
 <body>
     <div class="container">
-        
         <div class="form-container">
-            <h2>Plaats een nieuwe oproep</h2>
-            <form id="vervoer-form">
-                
-                <label for="type">Ik wil graag...</label>
-                <select name="type" id="type">
-                    <option value="aanbod_lift">Een lift aanbieden</option>
-                    <option value="vraag_lift">Een lift aanvragen</option>
-                    <option value="aanbod_transport">Goederentransport aanbieden</option>
-                    <option value="vraag_transport">Goederentransport aanvragen</option>
-                </select>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="van_plaats">Van (plaats)</label>
-                        <input type="text" id="van_plaats" name="van_plaats" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="naar_plaats">Naar (plaats)</label>
-                        <input type="text" id="naar_plaats" name="naar_plaats" required>
-                    </div>
-                </div>
-
-                <label for="vertrekdatum">Datum</label>
-                <input type="date" id="vertrekdatum" name="vertrekdatum" required>
-                
-                <label for="details">Details (aantal personen, bagage, etc.)</label>
-                <textarea id="details" name="details"></textarea>
+            <label for="details">Details</label>
+                <textarea id="details" name="details" placeholder="Bijv: aantal personen, bagage, beschrijving goederen, datum is flexibel (+/- 3 dagen), etc."></textarea>
                 
                 <label for="contact_info">Link naar mijn profiel</label>
-                <div class="contact-info-wrapper">
-                    <input type="text" id="contact_info" name="contact_info" required>
-                    <button type="button" id="help-button" title="Hoe vind ik mijn profiel URL?">?</button>
-                </div>
-                
-                <button type="submit">Plaats oproep</button>
-            </form>
-        </div>
-
+            </div>
         <hr>
-
-        <h2>Actuele Vraag & Aanbod</h2>
-        <div id="ritten-lijst"><p>Laden...</p></div>
-    </div>
-
-    <div id="help-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h3>Melding van Nederlanders.fr:</h3>
-            <ol>
-                <li>Ga naar je profielpagina in het forum van Nederlanders.fr: Ga in het menu naar 'Leden', klik op 'Mijn profielpagina'.</li>
-                <li>Kopieer de volledige URL uit de adresbalk van je browser.</li>
-                <li>Plak deze URL in het veld "Link naar mijn profiel".</li>
-            </ol>
-            <hr>
-            <p><strong>Let op:</strong> Je dient ingelogd te zijn om gebruik te kunnen maken van de Vervoerspagina.
-            <a href="https://www.nederlanders.fr/main/authorization/signIn" target="_blank" rel="noopener noreferrer">Klik hier om in te loggen.</a>
-            </p>
         </div>
-    </div>
-    
-    <script src="script.js"></script>
-</body>
+    </body>
 </html>
