@@ -1,19 +1,69 @@
+/* Stijlen voor het contact-veld (dit had je al) */
 .contact-info-wrapper {
     display: flex;
     align-items: center;
-    gap: 5px; /* Ruimte tussen het veld en de knop */
+    gap: 5px;
 }
-
 .contact-info-wrapper input {
-    flex-grow: 1; /* Zorgt dat het input-veld de meeste ruimte pakt */
-    margin-bottom: 0; /* Haalt de standaard marge weg */
+    flex-grow: 1;
+    margin-bottom: 0;
 }
-
 #help-button {
     width: 30px;
     height: 30px;
     flex-shrink: 0;
     padding: 0;
     font-weight: bold;
-    border-radius: 50%; /* Maakt de knop rond */
+    border-radius: 50%;
+}
+
+/* **** NIEUWE STIJLEN VOOR DE POP-UP MODAL **** */
+/* De achtergrond overlay (wordt donker) */
+.modal {
+    display: none; /* Standaard verborgen */
+    position: fixed; /* Blijft op zijn plek bij scrollen */
+    z-index: 1000; /* Zorgt dat het boven alles staat */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6); /* Zwarte overlay met doorzichtigheid */
+}
+
+/* De content-box van de pop-up */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% van de bovenkant en gecentreerd */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    position: relative;
+}
+
+/* De sluitknop (x) */
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Opmaak voor de inhoud van de modal */
+.modal-content h3 {
+    margin-top: 0;
+}
+.modal-content ol {
+    padding-left: 20px;
+}
+.modal-content li {
+    margin-bottom: 10px;
 }
