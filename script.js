@@ -54,16 +54,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(vervoerForm);
         const ritData = Object.fromEntries(formData.entries());
         try {
-            // **** DE CORRECTIE ZIT HIER ****
-            // We voegen een 'Preference' header toe om de data terug te vragen.
+            // **** DE DEFINITIEVE CORRECTIE ZIT HIER ****
             const { data, error } = await supabaseClient
                 .from('ritten')
-                .insert([ritData])
-                .select()
-                .single();
-
+                .insert(ritData) // De data om op te slaan
+                .select()       // De instructie om de opgeslagen data terug te geven
+                .single();      // We verwachten één opgeslagen rij terug
+            
             if (error) throw error;
-
+            
             const newEditToken = data.edit_token;
             const editUrl = `${window.location.origin}${window.location.pathname}?edit=${newEditToken}`;
             
