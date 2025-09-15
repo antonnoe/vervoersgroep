@@ -1,0 +1,4 @@
+body { font-family: sans-serif; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+.rit-item { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+form input, form select, form textarea, form button { display: block; width: 100%; margin-bottom: 10px; padding: 8px; }

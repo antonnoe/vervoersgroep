@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vervoerscentrale</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Plaats een nieuwe oproep</h2>
+        <form id="vervoer-form">
+            <select name="type">
+                <option value="aanbod_lift">Ik bied een lift aan</option>
+                <option value="vraag_lift">Ik zoek een lift</option>
+                <option value="aanbod_transport">Ik bied goederentransport aan</option>
+                <option value="vraag_transport">Ik zoek goederentransport</option>
+            </select>
+            <input type="text" name="van_plaats" placeholder="Van (plaats)" required>
+            <input type="text" name="naar_plaats" placeholder="Naar (plaats)" required>
+            <input type="date" name="vertrekdatum" required>
+            <textarea name="details" placeholder="Details (aantal personen, bagage, etc.)"></textarea>
+            <input type="text" name="contact_info" placeholder="Link naar je NING profiel" required>
+            <button type="submit">Plaats oproep</button>
+        </form>
+
+        <hr>
+
+        <h2>Actuele Vraag & Aanbod</h2>
+        <div id="ritten-lijst">
+            <p>Laden...</p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
