@@ -54,11 +54,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(vervoerForm);
         const ritData = Object.fromEntries(formData.entries());
         try {
-            const { data, error } = await supabaseClient.from('ritten').insert([ritData]).select();
+            // **** DE CORRECTIE ZIT HIER ****
+            // We voegen een 'Preference' header toe om de data terug te vragen.
+            const { data, error } = await supabaseClient
+                .from('ritten')
+                .insert([ritData])
+                .select()
+                .single();
+
             if (error) throw error;
-            const newEditToken = data[0].edit_token;
+
+            const newEditToken = data.edit_token;
             const editUrl = `${window.location.origin}${window.location.pathname}?edit=${newEditToken}`;
+            
             alert(`Je oproep is succesvol geplaatst!\n\nBELANGRIJK:\nBewaar de volgende geheime link om je oproep later te kunnen verwijderen:\n\n${editUrl}`);
+            
             vervoerForm.reset();
             laadRitten();
         } catch (error) {
