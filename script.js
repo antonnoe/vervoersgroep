@@ -41,15 +41,22 @@ document.addEventListener('DOMContentLoaded', function() {
             ];
             
             let contentGevonden = false;
-            weergaveOrde.forEach(groepInfo => {
+            const kolom1 = document.createElement('div');
+            const kolom2 = document.createElement('div');
+            rittenLijstDiv.appendChild(kolom1);
+            rittenLijstDiv.appendChild(kolom2);
+
+            weergaveOrde.forEach((groepInfo, index) => {
                 const groepData = groepen[groepInfo.key];
+                const targetKolom = (index < 2) ? kolom1 : kolom2;
+
                 if (groepData.length > 0) {
                     contentGevonden = true;
                     
                     const titel = document.createElement('h3');
                     titel.className = 'rit-group-titel';
                     titel.textContent = groepInfo.titel;
-                    rittenLijstDiv.appendChild(titel);
+                    targetKolom.appendChild(titel);
                     
                     groepData.forEach(rit => {
                         const ritDiv = document.createElement('div');
@@ -68,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ritHTML += `<hr><button class="delete-button" data-id="${rit.id}">Verwijder deze oproep</button>`;
                         }
                         ritDiv.innerHTML = ritHTML;
-                        rittenLijstDiv.appendChild(ritDiv);
+                        targetKolom.appendChild(ritDiv);
                     });
                 }
             });
@@ -91,7 +98,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const { data, error } = await supabaseClient.from('ritten').insert([ritData]).select().single();
             if (error) throw error;
             
-            document.getElementById('modal-text').textContent = "Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is (onderweg) naar je toe gestuurd. Deze oproep wordt automatisch verwijderd 3 dagen na de door u opgegeven datum.";
+            const newEditToken = data.edit_token;
+            const editUrl = `${window.location.origin}${window.location.pathname}?edit=${newEditToken}`;
+
+            // Roep de Edge Function aan om de e-mail te sturen
+            await supabaseClient.functions.invoke('send-edit-link', {
+                body: { 
+                    toEmail: ritData.contact_info, 
+                    editUrl: editUrl,
+                    naamOproeper: ritData.naam_oproeper
+                },
+            });
+
+            document.getElementById('modal-text').textContent = `Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is onderweg naar ${ritData.contact_info}. Deze oproep wordt automatisch verwijderd 3 dagen na de door u opgegeven datum.`;
             successModal.style.display = 'block';
             
             vervoerForm.reset();
