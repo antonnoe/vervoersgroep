@@ -13,7 +13,7 @@
             <h2>Plaats een nieuwe oproep</h2>
             <form id="vervoer-form">
                 
-                <fieldset class="radio-group">
+                <fieldset class="radio-group-buttons">
                     <legend>Ik wil graag...</legend>
                     <div>
                         <input type="radio" id="aanbod_lift" name="type" value="aanbod_lift" checked>
@@ -33,6 +33,9 @@
                     </div>
                 </fieldset>
 
+                <label for="naam_oproeper">Jouw naam</label>
+                <input type="text" id="naam_oproeper" name="naam_oproeper" required>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="van_plaats">Van (plaats)</label>
@@ -51,7 +54,7 @@
                 <textarea id="details" name="details" placeholder="Bijv: aantal personen, bagage, beschrijving goederen, datum is flexibel (+/- 3 dagen), etc." required></textarea>
                 
                 <label for="contact_info">Jouw e-mailadres</label>
-                <input type="email" id="contact_info" name="contact_info" placeholder="Hier wordt de bewerk-link naartoe gestuurd" required>
+                <input type="email" id="contact_info" name="contact_info" placeholder="Deze komt in uw oproep zodat men u kan bereiken, en wordt gebruikt om u een linkje te sturen om uw bericht te bewerken." required>
                 
                 <button type="submit">Plaats oproep</button>
             </form>
@@ -77,5 +80,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=5"></script> </body>
+    <script src="script.js?v=6"></script>
+</body>
 </html>

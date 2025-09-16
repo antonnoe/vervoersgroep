@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return dagenVerschil <= 3;
             });
 
-            // Sorteer de data in groepen
             const groepen = {
                 vraag_lift: [], aanbod_lift: [],
                 vraag_transport: [], aanbod_transport: []
@@ -34,7 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             rittenLijstDiv.innerHTML = ''; 
 
-            // Definieer de weergave volgorde en titels
             const weergaveOrde = [
                 { key: 'vraag_lift', titel: 'Liftcentrale - Gevraagd' },
                 { key: 'aanbod_lift', titel: 'Liftcentrale - Aangeboden' },
@@ -47,13 +45,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const groepData = groepen[groepInfo.key];
                 if (groepData.length > 0) {
                     contentGevonden = true;
-                    // Maak een titel voor de groep en voeg toe aan de grid
+                    
                     const titel = document.createElement('h3');
-                    titel.className = 'rit-group'; // Class voor styling over volle breedte
+                    titel.className = 'rit-group';
                     titel.textContent = groepInfo.titel;
                     rittenLijstDiv.appendChild(titel);
                     
-                    // Maak de 'tegels' en voeg toe aan de grid
+                    const groepContentDiv = document.createElement('div');
+                    groepContentDiv.className = 'rit-group-content';
+                    
                     groepData.forEach(rit => {
                         const ritDiv = document.createElement('div');
                         ritDiv.className = 'rit-item';
@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         let ritHTML = `
                             <h4>${rit.van_plaats} &rarr; ${rit.naar_plaats}</h4>
+                            <p><strong>Door:</strong> ${rit.naam_oproeper || 'Onbekend'}</p>
                             <p><strong>Datum:</strong> ${vertrekDatum}</p>
                             <p><strong>Details:</strong> ${rit.details || 'Geen'}</p>
                             <p><strong>Contact:</strong> <a href="mailto:${rit.contact_info}">${rit.contact_info}</a></p>
@@ -70,8 +71,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             ritHTML += `<hr><button class="delete-button" data-id="${rit.id}">Verwijder deze oproep</button>`;
                         }
                         ritDiv.innerHTML = ritHTML;
-                        rittenLijstDiv.appendChild(ritDiv);
+                        groepContentDiv.appendChild(ritDiv);
                     });
+                    rittenLijstDiv.appendChild(groepContentDiv);
                 }
             });
 
@@ -97,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             document.getElementById('modal-text').textContent = "Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is (onderweg) naar je toe gestuurd. Deze oproep wordt automatisch verwijderd 3 dagen na de door u opgegeven datum.";
             successModal.style.display = 'block';
-
+            
             vervoerForm.reset();
             laadRitten();
         } catch (error) {
@@ -105,16 +107,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Aangepaste Event listeners voor de pop-up knoppen
     document.getElementById('modal-ok-button').addEventListener('click', () => {
-        window.location.href = 'https://www.nederlanders.fr/'; // Stuur door naar de hoofdpagina
+        window.location.href = 'https://www.nederlanders.fr/';
     });
     document.getElementById('modal-new-button').addEventListener('click', () => {
         successModal.style.display = 'none';
         vervoerForm.scrollIntoView({ behavior: 'smooth' });
     });
 
-    // De verwijderfunctie blijft hetzelfde
     rittenLijstDiv.addEventListener('click', async (event) => {
         if (event.target.classList.contains('delete-button')) {
             if (confirm('Weet je zeker dat je deze oproep wilt verwijderen?')) {
