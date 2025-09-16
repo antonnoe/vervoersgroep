@@ -6,6 +6,7 @@ h2 { color: #800000; text-align: center; }
 
 /* --- Formulier Opmaak --- */
 .form-container { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.form-container h2 { margin-top: 0; color: #800000; text-transform: uppercase; } /* Aangepast */
 label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; }
 input[type="text"], input[type="date"], input[type="email"], select, textarea { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; transition: border-color 0.2s, box-shadow 0.2s; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: #800000; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
@@ -21,26 +22,9 @@ button[type="submit"]:hover { background-color: #a00000; }
 .radio-group-buttons input[type="radio"]:checked + label { background-color: #800000; color: white; border-color: #800000; }
 
 /* --- Rit Weergave (Gegroepeerd & Kolommen) --- */
-#ritten-lijst {
-    display: grid;
-    grid-template-columns: 1fr; /* Standaard 1 kolom voor mobiel */
-    gap: 20px;
-}
-.rit-group-titel {
-    grid-column: 1 / -1; /* Zorgt dat de titel altijd de volle breedte pakt */
-    border-bottom: 2px solid #800000;
-    padding-bottom: 10px;
-    margin-top: 20px;
-    margin-bottom: 0;
-}
-.rit-item {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-left: 5px solid #800000;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
+#ritten-lijst { display: grid; grid-template-columns: 1fr; gap: 0 30px; }
+.rit-group-titel { grid-column: 1 / -1; border-bottom: 2px solid #800000; padding-bottom: 10px; margin-bottom: 20px; }
+.rit-item { background-color: #f9f9f9; border: 1px solid #ddd; border-left: 5px solid #800000; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
 .rit-item h4 { margin-top: 0; }
 .rit-item p { margin: 5px 0; line-height: 1.5; word-wrap: break-word; }
 .rit-item a { color: #800000; font-weight: bold; }
@@ -55,8 +39,4 @@ button[type="submit"]:hover { background-color: #a00000; }
 .modal-buttons button:hover { background-color: #800000; color: white; }
 
 /* Media query voor grotere schermen (2 kolommen) */
-@media (min-width: 768px) {
-    #ritten-lijst {
-        grid-template-columns: 1fr 1fr; /* Twee kolommen op brede schermen */
-    }
-}
+@media (min-width: 768px) { #ritten-lijst { grid-template-columns: 1fr 1fr; } }
