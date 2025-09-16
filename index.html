@@ -9,18 +9,29 @@
 </head>
 <body>
     <div class="container">
-        
         <div class="form-container">
             <h2>Plaats een nieuwe oproep</h2>
             <form id="vervoer-form">
                 
-                <label for="type">Ik wil graag...</label>
-                <select name="type" id="type">
-                    <option value="aanbod_lift">Een lift aanbieden</option>
-                    <option value="vraag_lift">Een lift aanvragen</option>
-                    <option value="aanbod_transport">Goederentransport aanbieden</option>
-                    <option value="vraag_transport">Goederentransport aanvragen</option>
-                </select>
+                <fieldset class="radio-group">
+                    <legend>Ik wil graag...</legend>
+                    <div>
+                        <input type="radio" id="aanbod_lift" name="type" value="aanbod_lift" checked>
+                        <label for="aanbod_lift">Een lift aanbieden</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="vraag_lift" name="type" value="vraag_lift">
+                        <label for="vraag_lift">Een lift aanvragen</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="aanbod_transport" name="type" value="aanbod_transport">
+                        <label for="aanbod_transport">Goederentransport aanbieden</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="vraag_transport" name="type" value="vraag_transport">
+                        <label for="vraag_transport">Goederentransport aanvragen</label>
+                    </div>
+                </fieldset>
 
                 <div class="form-row">
                     <div class="form-group">
@@ -37,10 +48,10 @@
                 <input type="date" id="vertrekdatum" name="vertrekdatum" required>
                 
                 <label for="details">Details</label>
-                <textarea id="details" name="details" placeholder="Bijv: aantal personen, bagage, beschrijving goederen, datum is flexibel (+/- 3 dagen), etc."></textarea>
+                <textarea id="details" name="details" placeholder="Bijv: aantal personen, bagage, beschrijving goederen, datum is flexibel (+/- 3 dagen), etc." required></textarea>
                 
                 <label for="contact_info">Jouw e-mailadres</label>
-                <input type="email" id="contact_info" name="contact_info" placeholder="Hier ontvang je de bewerk-link" required>
+                <input type="email" id="contact_info" name="contact_info" placeholder="Hier wordt de bewerk-link naartoe gestuurd" required>
                 
                 <button type="submit">Plaats oproep</button>
             </form>
@@ -48,11 +59,23 @@
 
         <hr>
 
-        <h2>Actuele Vraag & Aanbod</h2>
-        <div id="ritten-lijst"><p>Laden...</p></div>
+        <h2>VRAAG EN AANBOD</h2>
+        <div id="ritten-lijst">
+            <p>Ritten worden geladen...</p>
+        </div>
     </div>
     
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <h3>Moderator Nederlanders.fr meldt het volgende</h3>
+            <p id="modal-text"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-button">OK</button>
+                <button id="modal-new-button">Plaats nog een oproep</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
-</body>
+    <script src="script.js?v=5"></script> </body>
 </html>
