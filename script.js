@@ -96,9 +96,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(vervoerForm);
         const ritData = Object.fromEntries(formData.entries());
         try {
-            const { data, error } = await supabaseClient.from('ritten').insert([ritData]).select().single();
+            // Definitieve correctie voor de edit=null bug
+            const { data, error } = await supabaseClient.from('ritten').insert([ritData]).select();
             if (error) throw error;
             
+            const newEditToken = data[0].edit_token;
+            const editUrl = `${window.location.origin}${window.location.pathname}?edit=${newEditToken}`;
+
             document.getElementById('modal-text').textContent = "Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is (onderweg) naar je toe gestuurd. Deze oproep wordt automatisch verwijderd 3 dagen na de door u opgegeven datum.";
             successModal.style.display = 'block';
             
