@@ -41,18 +41,23 @@ document.addEventListener('DOMContentLoaded', function() {
             ];
             
             let contentGevonden = false;
-            weergaveOrde.forEach(groepInfo => {
+            // Maak kolommen voor de groepen
+            const kolom1 = document.createElement('div');
+            const kolom2 = document.createElement('div');
+            rittenLijstDiv.appendChild(kolom1);
+            rittenLijstDiv.appendChild(kolom2);
+
+            weergaveOrde.forEach((groepInfo, index) => {
                 const groepData = groepen[groepInfo.key];
+                const targetKolom = (index < 2) ? kolom1 : kolom2; // Eerste 2 groepen in kolom 1, rest in kolom 2
+
                 if (groepData.length > 0) {
                     contentGevonden = true;
                     
                     const titel = document.createElement('h3');
-                    titel.className = 'rit-group';
+                    titel.className = 'rit-group-titel';
                     titel.textContent = groepInfo.titel;
-                    rittenLijstDiv.appendChild(titel);
-                    
-                    const groepContentDiv = document.createElement('div');
-                    groepContentDiv.className = 'rit-group-content';
+                    targetKolom.appendChild(titel);
                     
                     groepData.forEach(rit => {
                         const ritDiv = document.createElement('div');
@@ -71,21 +76,18 @@ document.addEventListener('DOMContentLoaded', function() {
                             ritHTML += `<hr><button class="delete-button" data-id="${rit.id}">Verwijder deze oproep</button>`;
                         }
                         ritDiv.innerHTML = ritHTML;
-                        groepContentDiv.appendChild(ritDiv);
+                        targetKolom.appendChild(ritDiv);
                     });
-                    rittenLijstDiv.appendChild(groepContentDiv);
                 }
             });
 
             if (!contentGevonden) {
-                const geenOproepen = document.createElement('p');
-                geenOproepen.textContent = 'Er zijn op dit moment geen actieve oproepen.';
-                rittenLijstDiv.appendChild(geenOproepen);
+                rittenLijstDiv.innerHTML = '<p style="grid-column: 1 / -1;">Er zijn op dit moment geen actieve oproepen.</p>';
             }
 
         } catch (error) {
             console.error('Fout bij laden:', error);
-            rittenLijstDiv.innerHTML = `<p style="color:red;">Fout: ${error.message}</p>`;
+            rittenLijstDiv.innerHTML = `<p style="color:red; grid-column: 1 / -1;">Fout: ${error.message}</p>`;
         }
     }
 
