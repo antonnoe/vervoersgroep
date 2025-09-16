@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             activeData.forEach(rit => groepen[rit.type]?.push(rit));
 
-            rittenLijstDiv.innerHTML = ''; // Maak de lijst leeg
+            rittenLijstDiv.innerHTML = ''; 
 
             // Definieer de weergave volgorde en titels
             const weergaveOrde = [
@@ -47,14 +47,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const groepData = groepen[groepInfo.key];
                 if (groepData.length > 0) {
                     contentGevonden = true;
-                    // Maak een container voor de groep
-                    const groepDiv = document.createElement('div');
-                    groepDiv.className = 'rit-group';
-                    
+                    // Maak een titel voor de groep en voeg toe aan de grid
                     const titel = document.createElement('h3');
+                    titel.className = 'rit-group'; // Class voor styling over volle breedte
                     titel.textContent = groepInfo.titel;
-                    groepDiv.appendChild(titel);
+                    rittenLijstDiv.appendChild(titel);
                     
+                    // Maak de 'tegels' en voeg toe aan de grid
                     groepData.forEach(rit => {
                         const ritDiv = document.createElement('div');
                         ritDiv.className = 'rit-item';
@@ -71,14 +70,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             ritHTML += `<hr><button class="delete-button" data-id="${rit.id}">Verwijder deze oproep</button>`;
                         }
                         ritDiv.innerHTML = ritHTML;
-                        groepDiv.appendChild(ritDiv);
+                        rittenLijstDiv.appendChild(ritDiv);
                     });
-                    rittenLijstDiv.appendChild(groepDiv);
                 }
             });
 
             if (!contentGevonden) {
-                rittenLijstDiv.innerHTML = '<p>Er zijn op dit moment geen actieve oproepen.</p>';
+                const geenOproepen = document.createElement('p');
+                geenOproepen.textContent = 'Er zijn op dit moment geen actieve oproepen.';
+                rittenLijstDiv.appendChild(geenOproepen);
             }
 
         } catch (error) {
@@ -95,12 +95,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const { data, error } = await supabaseClient.from('ritten').insert([ritData]).select().single();
             if (error) throw error;
             
-            // Toon de nieuwe success pop-up
             document.getElementById('modal-text').textContent = "Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is (onderweg) naar je toe gestuurd. Deze oproep wordt automatisch verwijderd 3 dagen na de door u opgegeven datum.";
             successModal.style.display = 'block';
 
-            // In de toekomst: stuur hier de e-mail met data[0].edit_token
-            
             vervoerForm.reset();
             laadRitten();
         } catch (error) {
@@ -108,9 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Event listeners voor de pop-up knoppen
+    // Aangepaste Event listeners voor de pop-up knoppen
     document.getElementById('modal-ok-button').addEventListener('click', () => {
-        successModal.style.display = 'none';
+        window.location.href = 'https://www.nederlanders.fr/'; // Stuur door naar de hoofdpagina
     });
     document.getElementById('modal-new-button').addEventListener('click', () => {
         successModal.style.display = 'none';
