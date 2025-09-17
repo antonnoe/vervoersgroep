@@ -95,10 +95,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(vervoerForm);
         const ritData = Object.fromEntries(formData.entries());
         try {
-            const { data, error } = await supabaseClient.from('ritten').insert([ritData]).select().single();
+            // **** DE DEFINITIEVE CORRECTIE ****
+            const { data, error } = await supabaseClient.from('ritten').insert([ritData]).select();
+            
             if (error) throw error;
             
-            document.getElementById('modal-text').textContent = "Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is (onderweg) naar je toe gestuurd. Deze oproep wordt automatisch verwijderd 3 dagen na de door u opgegeven datum.";
+            const newEditToken = data[0].edit_token; // Pak de token van het eerste item in de array
+            const editUrl = `${window.location.origin}${window.location.pathname}?edit=${newEditToken}`;
+
+            await supabaseClient.functions.invoke('send-edit-link', {
+                body: { 
+                    toEmail: ritData.contact_info, 
+                    editUrl: editUrl,
+                    naamOproeper: ritData.naam_oproeper
+                },
+            });
+
+            document.getElementById('modal-text').textContent = `Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is onderweg naar ${ritData.contact_info}. Deze oproep wordt automatisch verwijderd 3 dagen na de door u opgegeven datum.`;
             successModal.style.display = 'block';
             
             vervoerForm.reset();
@@ -116,11 +129,8 @@ document.addEventListener('DOMContentLoaded', function() {
         vervoerForm.scrollIntoView({ behavior: 'smooth' });
     });
 
-    // **** DE CORRECTIE ZIT HIER ****
     rittenLijstDiv.addEventListener('click', async (event) => {
-        // Controleer EERST of de klik op een verwijderknop was
         if (event.target.classList.contains('delete-button')) {
-            // Zo ja, vraag DAN pas om bevestiging
             if (confirm('Weet je zeker dat je deze oproep wilt verwijderen?')) {
                 const ritId = event.target.dataset.id;
                 const { error } = await supabaseClient.from('ritten').delete().match({ id: ritId });
@@ -128,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert(`Fout bij verwijderen: ${error.message}`);
                 } else {
                     alert('Oproep succesvol verwijderd.');
-                    window.location.href = window.location.pathname; // Herlaad de pagina zonder de ?edit=... parameter
+                    window.location.href = window.location.pathname;
                 }
             }
         }
