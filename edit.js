@@ -6,14 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const editForm = document.getElementById('edit-form');
     const loadingMessage = document.getElementById('loading-message');
+    const urlParams = new URLSearchParams(window.location.search);
+    const editToken = urlParams.get('edit');
+    let ritId = null; // Variabele om het ID van de rit te bewaren
 
-    // Functie om de data op te halen en het formulier in te vullen
     async function laadOproepData() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const editToken = urlParams.get('edit');
-
         if (!editToken) {
-            loadingMessage.textContent = 'Fout: Geen bewerk-token gevonden. Ga terug naar de hoofdpagina.';
+            loadingMessage.innerHTML = '<p style="color:red;">Fout: Geen bewerk-token gevonden. Ga terug naar de hoofdpagina.</p>';
             return;
         }
 
@@ -27,17 +26,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (error || !data) {
                 throw new Error('Oproep niet gevonden of ongeldige link.');
             }
+            
+            ritId = data.id; // Bewaar het ID voor de update-functie
 
-            // Vul alle formuliervelden in met de opgehaalde data
-            document.getElementById('naam_oproeper').value = data.naam_oproeper;
-            document.getElementById('van_plaats').value = data.van_plaats;
-            document.getElementById('naar_plaats').value = data.naar_plaats;
-            document.getElementById('vertrekdatum').value = data.vertrekdatum;
-            document.getElementById('details').value = data.details;
-            document.getElementById('contact_info').value = data.contact_info;
-
-            // Selecteer de juiste radio button
-            document.querySelector(`input[name="type"][value="${data.type}"]`).checked = true;
+            // Vul alle formuliervelden in
+            editForm.elements['type'].value = data.type;
+            editForm.elements['naam_oproeper'].value = data.naam_oproeper;
+            editForm.elements['van_plaats'].value = data.van_plaats;
+            editForm.elements['naar_plaats'].value = data.naar_plaats;
+            editForm.elements['vertrekdatum'].value = data.vertrekdatum;
+            editForm.elements['details'].value = data.details;
+            editForm.elements['contact_info'].value = data.contact_info;
             
             loadingMessage.style.display = 'none';
             editForm.style.display = 'block';
@@ -47,6 +46,30 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingMessage.innerHTML = `<p style="color:red;">${error.message}</p>`;
         }
     }
+
+    // Functie om de wijzigingen op te slaan
+    editForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData(editForm);
+        const updatedData = Object.fromEntries(formData.entries());
+
+        try {
+            const { error } = await supabaseClient
+                .from('ritten')
+                .update(updatedData)
+                .eq('id', ritId); // Update de rij met het juiste ID
+
+            if (error) throw error;
+
+            alert('Je oproep is succesvol bijgewerkt!');
+            window.location.href = 'index.html'; // Stuur terug naar de hoofdpagina
+
+        } catch (error) {
+            console.error('Update Fout:', error);
+            alert(`Er is een fout opgetreden bij het opslaan: ${error.message}`);
+        }
+    });
 
     laadOproepData();
 });

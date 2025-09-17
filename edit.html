@@ -4,16 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oproep Bewerken - Vervoerscentrale</title>
-    <link rel="stylesheet" href="style.css"> </head>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
     <div class="container">
         <div class="form-container">
-            <h2>Bewerk je oproep</h2>
-            <form id="edit-form">
+            <div id="loading-message">
+                <p>Oproep wordt geladen...</p>
+            </div>
+            
+            <form id="edit-form" style="display:none;">
+                <h2>Bewerk je oproep</h2>
                 <fieldset class="radio-group-buttons">
                     <legend>Ik wil graag...</legend>
-                    </fieldset>
-                
+                    <div>
+                        <input type="radio" id="aanbod_lift" name="type" value="aanbod_lift">
+                        <label for="aanbod_lift">Een lift aanbieden</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="vraag_lift" name="type" value="vraag_lift">
+                        <label for="vraag_lift">Een lift aanvragen</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="aanbod_transport" name="type" value="aanbod_transport">
+                        <label for="aanbod_transport">Goederentransport aanbieden</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="vraag_transport" name="type" value="vraag_transport">
+                        <label for="vraag_transport">Goederentransport aanvragen</label>
+                    </div>
+                </fieldset>
+
                 <label for="naam_oproeper">Naam</label>
                 <input type="text" id="naam_oproeper" name="naam_oproeper" required>
 
@@ -40,12 +61,10 @@
                 <button type="submit">Wijzigingen Opslaan</button>
                 <a href="index.html" class="cancel-link">Annuleren</a>
             </form>
-            <div id="loading-message">
-                <p>Oproep wordt geladen...</p>
-            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="edit.js"></script> </body>
+    <script src="edit.js?v=2"></script>
+</body>
 </html>
