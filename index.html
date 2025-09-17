@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <div class="form-container">
-            <h2>Plaats een nieuwe oproep</h2>
+            <h2>PLAATS EEN NIEUWE OPROEP</h2>
             <form id="vervoer-form">
                 
                 <fieldset class="radio-group-buttons">
@@ -51,7 +51,7 @@
                 <input type="date" id="vertrekdatum" name="vertrekdatum" required>
                 
                 <label for="details">Details</label>
-                <textarea id="details" name="details" placeholder="Bijv: aantal personen, bagage, etc." required></textarea>
+                <textarea id="details" name="details" placeholder="Bijv: exacte plaatsnaam, aantal personen, bagage, etc." required></textarea>
                 
                 <label for="contact_info">E-mail</label>
                 <input type="email" id="contact_info" name="contact_info" required>
@@ -63,9 +63,16 @@
         <hr>
 
         <h2 id="hoofdTitel">VRAAG EN AANBOD</h2>
-        <div id="ritten-lijst">
-            <p>Ritten worden geladen...</p>
+        
+        <div class="nav-buttons">
+            <a href="#liftcentrale-gevraagd">Liftaanvragen</a>
+            <a href="#liftcentrale-aangeboden">Liftaanbod</a>
+            <a href="#transportcentrale-gevraagd">Transportaanvragen</a>
+            <a href="#transportcentrale-aangeboden">Transportaanbod</a>
         </div>
+
+        <div id="ritten-lijst">
+            </div>
     </div>
     
     <div id="success-modal" class="modal">
@@ -80,6 +87,5 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=17"></script>
-</body>
+    <script src="script.js?v=19"></script> </body>
 </html>

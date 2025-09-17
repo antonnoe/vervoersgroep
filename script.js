@@ -4,94 +4,109 @@ document.addEventListener('DOMContentLoaded', function() {
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const rittenLijstDiv = document.getElementById('ritten-lijst');
+    const rittenLijstContainer = document.getElementById('ritten-lijst');
     const vervoerForm = document.getElementById('vervoer-form');
     const successModal = document.getElementById('success-modal');
     const hoofdTitel = document.querySelector('h2#hoofdTitel');
 
-    async function laadRitten() {
-        rittenLijstDiv.innerHTML = '<p>Ritten worden geladen...</p>';
+    async function laadPagina() {
         const urlParams = new URLSearchParams(window.location.search);
         const editToken = urlParams.get('edit');
 
-        try {
-            if (editToken) {
-                const { data, error } = await supabaseClient.from('ritten').select('*').eq('edit_token', editToken).single();
-                if (error || !data) throw new Error("Oproep niet gevonden of ongeldige link.");
-                
-                vervoerForm.style.display = 'none';
-                document.querySelector('hr').style.display = 'none';
-                hoofdTitel.textContent = 'Beheer Je Oproep';
-                
-                rittenLijstDiv.innerHTML = '';
-                renderBeheerItem(data);
-            } else {
-                await renderAlleRitten();
-            }
-        } catch (error) {
-            console.error('Fout bij laden:', error);
-            rittenLijstDiv.innerHTML = `<p style="color:red;">Fout: ${error.message}</p>`;
+        if (editToken) {
+            renderBeheerWeergave(editToken);
+        } else {
+            renderAlleRitten();
         }
     }
 
     async function renderAlleRitten() {
-        const { data, error } = await supabaseClient.from('ritten').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
+        rittenLijstContainer.innerHTML = '<p>Ritten worden geladen...</p>';
+        try {
+            const { data, error } = await supabaseClient.from('ritten').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
             
-        const vandaag = new Date();
-        vandaag.setHours(0, 0, 0, 0);
-        const activeData = data.filter(rit => {
-            const vertrekDatum = new Date(rit.vertrekdatum);
-            const dagenVerschil = (vandaag - vertrekDatum) / (1000 * 60 * 60 * 24);
-            return dagenVerschil <= 3;
-        });
-        const groepen = { vraag_lift: [], aanbod_lift: [], vraag_transport: [], aanbod_transport: [] };
-        activeData.forEach(rit => groepen[rit.type]?.push(rit));
-        rittenLijstDiv.innerHTML = ''; 
-        const weergaveOrde = [
-            { key: 'vraag_lift', titel: 'Liftcentrale - Gevraagd' },
-            { key: 'aanbod_lift', titel: 'Liftcentrale - Aangeboden' },
-            { key: 'vraag_transport', titel: 'Transportcentrale - Gevraagd' },
-            { key: 'aanbod_transport', titel: 'Transportcentrale - Aangeboden' }
-        ];
-        let contentGevonden = false;
-        const kolom1 = document.createElement('div');
-        const kolom2 = document.createElement('div');
-        rittenLijstDiv.appendChild(kolom1);
-        rittenLijstDiv.appendChild(kolom2);
-        weergaveOrde.forEach((groepInfo, index) => {
-            const groepData = groepen[groepInfo.key];
-            const targetKolom = (index < 2) ? kolom1 : kolom2;
-            if (groepData.length > 0) {
-                contentGevonden = true;
-                const titel = document.createElement('h3');
-                titel.className = 'rit-group-titel';
-                titel.textContent = groepInfo.titel;
-                targetKolom.appendChild(titel);
-                groepData.forEach(rit => {
-                    const ritDiv = document.createElement('div');
-                    ritDiv.className = 'rit-item';
-                    const vertrekDatum = new Date(rit.vertrekdatum).toLocaleDateString('nl-NL');
-                    ritDiv.innerHTML = `<h4>${rit.van_plaats} &rarr; ${rit.naar_plaats}</h4><p><strong>Door:</strong> ${rit.naam_oproeper || 'Onbekend'}</p><p><strong>Datum:</strong> ${vertrekDatum}</p><p><strong>Details:</strong> ${rit.details || 'Geen'}</p><p><strong>Contact:</strong> <a href="mailto:${rit.contact_info}">${rit.contact_info}</a></p>`;
-                    targetKolom.appendChild(ritDiv);
-                });
-            }
-        });
-        if (!contentGevonden) {
-            rittenLijstDiv.innerHTML = '<p style="grid-column: 1 / -1;">Er zijn op dit moment geen actieve oproepen.</p>';
+            const vandaag = new Date();
+            vandaag.setHours(0, 0, 0, 0);
+            const activeData = data.filter(rit => {
+                const vertrekDatum = new Date(rit.vertrekdatum);
+                const dagenVerschil = (vandaag - vertrekDatum) / (1000 * 60 * 60 * 24);
+                return dagenVerschil <= 3;
+            });
+
+            const groepen = {
+                vraag_lift: [], aanbod_lift: [],
+                vraag_transport: [], aanbod_transport: []
+            };
+            activeData.forEach(rit => groepen[rit.type]?.push(rit));
+            
+            // Leegmaken van de hoofdcontainer
+            rittenLijstContainer.innerHTML = '';
+            
+            // Vind de containers in de HTML
+            const vraagLiftList = document.getElementById('vraag_lift_list');
+            const aanbodLiftList = document.getElementById('aanbod_lift_list');
+            const vraagTransportList = document.getElementById('vraag_transport_list');
+            const aanbodTransportList = document.getElementById('aanbod_transport_list');
+            
+            // Maak de lijsten leeg voor het geval er oude data in staat
+            vraagLiftList.innerHTML = '';
+            aanbodLiftList.innerHTML = '';
+            vraagTransportList.innerHTML = '';
+            aanbodTransportList.innerHTML = '';
+            
+            // Vul de lijsten met de juiste data
+            renderGroep(groepen.vraag_lift, vraagLiftList);
+            renderGroep(groepen.aanbod_lift, aanbodLiftList);
+            renderGroep(groepen.vraag_transport, vraagTransportList);
+            renderGroep(groepen.aanbod_transport, aanbodTransportList);
+
+        } catch (error) {
+            console.error('Fout bij laden:', error);
+            rittenLijstContainer.innerHTML = `<p style="color:red;">Fout: ${error.message}</p>`;
+        }
+    }
+    
+    function renderGroep(data, container) {
+        if (data.length === 0) {
+            container.innerHTML = '<p><i>Geen oproepen in deze categorie.</i></p>';
+        } else {
+            data.forEach(rit => {
+                const ritDiv = document.createElement('div');
+                ritDiv.className = 'rit-item';
+                const vertrekDatum = new Date(rit.vertrekdatum).toLocaleDateString('nl-NL');
+                ritDiv.innerHTML = `
+                    <h5>${rit.van_plaats} &rarr; ${rit.naar_plaats}</h5>
+                    <p><strong>Door:</strong> ${rit.naam_oproeper || 'Onbekend'}</p>
+                    <p><strong>Datum:</strong> ${vertrekDatum}</p>
+                    <p><strong>Details:</strong> ${rit.details || 'Geen'}</p>
+                    <p><strong>Contact:</strong> <a href="mailto:${rit.contact_info}">${rit.contact_info}</a></p>
+                `;
+                container.appendChild(ritDiv);
+            });
         }
     }
 
-    function renderBeheerItem(rit) {
-        const vertrekDatum = new Date(rit.vertrekdatum).toLocaleDateString('nl-NL');
-        const editUrl = `edit.html?edit=${rit.edit_token}`;
-        
-        // --- DIAGNOSTISCHE REGELS ---
-        console.log("Het 'rit' object dat wordt gebruikt:", rit);
-        console.log("De 'Pas oproep aan' link die wordt gebouwd:", editUrl);
-
-        rittenLijstDiv.innerHTML = `
-            <div class="rit-item beheer-item" style="grid-column: 1 / -1;">
+    async function renderBeheerWeergave(editToken) {
+        try {
+            const { data, error } = await supabaseClient.from('ritten').select('*').eq('edit_token', editToken).single();
+            if (error || !data) throw new Error("Oproep niet gevonden of ongeldige link.");
+            
+            // Verberg het normale formulier en de lijsten
+            vervoerForm.style.display = 'none';
+            document.querySelector('.nav-buttons').style.display = 'none';
+            document.querySelector('hr').style.display = 'none';
+            hoofdTitel.textContent = 'Beheer Je Oproep';
+            
+            rittenLijstContainer.innerHTML = ''; // Maak de lijst leeg
+            
+            const rit = data;
+            const vertrekDatum = new Date(rit.vertrekdatum).toLocaleDateString('nl-NL');
+            const editUrl = `edit.html?edit=${rit.edit_token}`;
+            
+            const beheerDiv = document.createElement('div');
+            beheerDiv.className = 'rit-item beheer-item';
+            beheerDiv.innerHTML = `
                 <h4>${rit.van_plaats} &rarr; ${rit.naar_plaats}</h4>
                 <p><strong>Door:</strong> ${rit.naam_oproeper}</p>
                 <p><strong>Datum:</strong> ${vertrekDatum}</p>
@@ -102,8 +117,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <a href="${editUrl}" class="edit-button">Pas oproep aan</a>
                     <button class="delete-button" data-id="${rit.id}">Verwijder oproep</button>
                 </div>
-            </div>
-        `;
+            `;
+            rittenLijstContainer.appendChild(beheerDiv);
+        } catch (error) {
+            console.error('Fout bij laden beheer-item:', error);
+            rittenLijstContainer.innerHTML = `<p style="color:red;">Fout: ${error.message}</p>`;
+        }
     }
 
     vervoerForm.addEventListener('submit', async (event) => {
@@ -118,10 +137,10 @@ document.addEventListener('DOMContentLoaded', function() {
             await supabaseClient.functions.invoke('send-edit-link', {
                 body: { toEmail: ritData.contact_info, editUrl: `${window.location.origin}${window.location.pathname}?edit=${ritData.edit_token}`, naamOproeper: ritData.naam_oproeper },
             });
-            document.getElementById('modal-text').textContent = `Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is onderweg naar ${ritData.contact_info}.`;
+            document.getElementById('modal-text').textContent = "Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is onderweg naar je toe gestuurd. Deze oproep wordt automatisch verwijderd 3 dagen na de door u opgegeven datum.";
             successModal.style.display = 'block';
             vervoerForm.reset();
-            laadRitten();
+            laadPagina();
         } catch (error) {
             alert(`Fout bij plaatsen: ${error.message}`);
         }
@@ -136,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert(`Fout bij verwijderen: ${error.message}`);
                 } else {
                     alert('Oproep succesvol verwijderd.');
-                    window.location.href = window.location.pathname;
+                    window.location.href = 'index.html';
                 }
             }
         }
@@ -145,5 +164,5 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('modal-ok-button').addEventListener('click', () => { window.location.href = 'https://www.nederlanders.fr/'; });
     document.getElementById('modal-new-button').addEventListener('click', () => { successModal.style.display = 'none'; vervoerForm.scrollIntoView({ behavior: 'smooth' }); });
 
-    laadRitten();
+    laadPagina();
 });
