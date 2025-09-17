@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         ritDiv.className = 'rit-item';
                         const vertrekDatum = new Date(rit.vertrekdatum).toLocaleDateString('nl-NL');
                         
-                        // **** DIT WAS DE FOUT - DE HTML IS NU HERSTELD ****
                         let ritHTML = `
                             <h4>${rit.van_plaats} &rarr; ${rit.naar_plaats}</h4>
                             <p><strong>Door:</strong> ${rit.naam_oproeper || 'Onbekend'}</p>
@@ -117,15 +116,20 @@ document.addEventListener('DOMContentLoaded', function() {
         vervoerForm.scrollIntoView({ behavior: 'smooth' });
     });
 
+    // **** DE CORRECTIE ZIT HIER ****
     rittenLijstDiv.addEventListener('click', async (event) => {
-        if (confirm('Weet je zeker dat je deze oproep wilt verwijderen?')) {
-            const ritId = event.target.dataset.id;
-            const { error } = await supabaseClient.from('ritten').delete().match({ id: ritId });
-            if (error) {
-                alert(`Fout bij verwijderen: ${error.message}`);
-            } else {
-                alert('Oproep succesvol verwijderd.');
-                window.location.href = window.location.pathname;
+        // Controleer EERST of de klik op een verwijderknop was
+        if (event.target.classList.contains('delete-button')) {
+            // Zo ja, vraag DAN pas om bevestiging
+            if (confirm('Weet je zeker dat je deze oproep wilt verwijderen?')) {
+                const ritId = event.target.dataset.id;
+                const { error } = await supabaseClient.from('ritten').delete().match({ id: ritId });
+                if (error) {
+                    alert(`Fout bij verwijderen: ${error.message}`);
+                } else {
+                    alert('Oproep succesvol verwijderd.');
+                    window.location.href = window.location.pathname; // Herlaad de pagina zonder de ?edit=... parameter
+                }
             }
         }
     });
