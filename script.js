@@ -86,6 +86,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const vertrekDatum = new Date(rit.vertrekdatum).toLocaleDateString('nl-NL');
         const editUrl = `edit.html?edit=${rit.edit_token}`;
         
+        // --- DIAGNOSTISCHE REGELS ---
+        console.log("Het 'rit' object dat wordt gebruikt:", rit);
+        console.log("De 'Pas oproep aan' link die wordt gebouwd:", editUrl);
+
         rittenLijstDiv.innerHTML = `
             <div class="rit-item beheer-item" style="grid-column: 1 / -1;">
                 <h4>${rit.van_plaats} &rarr; ${rit.naar_plaats}</h4>
