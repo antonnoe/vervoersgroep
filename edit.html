@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oproep Bewerken - Vervoerscentrale</title>
+    <link rel="stylesheet" href="style.css"> </head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Bewerk je oproep</h2>
+            <form id="edit-form">
+                <fieldset class="radio-group-buttons">
+                    <legend>Ik wil graag...</legend>
+                    </fieldset>
+                
+                <label for="naam_oproeper">Naam</label>
+                <input type="text" id="naam_oproeper" name="naam_oproeper" required>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="van_plaats">Van (plaatsnaam en regio)</label>
+                        <input type="text" id="van_plaats" name="van_plaats" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="naar_plaats">Naar (plaatsnaam en regio)</label>
+                        <input type="text" id="naar_plaats" name="naar_plaats" required>
+                    </div>
+                </div>
+
+                <label for="vertrekdatum">Datum</label>
+                <input type="date" id="vertrekdatum" name="vertrekdatum" required>
+                
+                <label for="details">Details</label>
+                <textarea id="details" name="details" required></textarea>
+                
+                <label for="contact_info">E-mail</label>
+                <input type="email" id="contact_info" name="contact_info" required>
+                
+                <button type="submit">Wijzigingen Opslaan</button>
+                <a href="index.html" class="cancel-link">Annuleren</a>
+            </form>
+            <div id="loading-message">
+                <p>Oproep wordt geladen...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="edit.js"></script> </body>
+</html>
