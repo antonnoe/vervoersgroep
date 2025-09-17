@@ -22,9 +22,26 @@ button[type="submit"]:hover { background-color: #a00000; }
 .radio-group-buttons input[type="radio"]:checked + label { background-color: #800000; color: white; border-color: #800000; }
 
 /* --- Navigatieknoppen --- */
-.nav-buttons { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 40px; }
-.nav-buttons a { display: block; padding: 10px 15px; background-color: white; color: #800000; border: 1px solid #ddd; border-radius: 6px; text-decoration: none; font-weight: bold; transition: all 0.2s; }
-.nav-buttons a:hover { background-color: #800000; color: white; border-color: #800000; }
+.nav-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Maakt de knoppen flexibel */
+    gap: 10px;
+    margin-bottom: 40px;
+}
+.nav-buttons a {
+    display: block;
+    padding: 12px;
+    background-color: #800000; /* Steunkleur als achtergrond */
+    color: white; /* Witte tekst */
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    transition: all 0.2s;
+}
+.nav-buttons a:hover {
+    opacity: 0.85; /* Iets doorzichtig bij hover */
+}
 
 /* --- Rit Weergave (Nieuwe Layout) --- */
 .full-width-titel { text-align: center; font-size: 1.8em; color: #333; background-color: #e9ecef; padding: 15px; border-radius: 6px; margin: 40px 0 20px 0; }

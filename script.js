@@ -40,22 +40,18 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             activeData.forEach(rit => groepen[rit.type]?.push(rit));
             
-            // Leegmaken van de hoofdcontainer
             rittenLijstContainer.innerHTML = '';
             
-            // Vind de containers in de HTML
             const vraagLiftList = document.getElementById('vraag_lift_list');
             const aanbodLiftList = document.getElementById('aanbod_lift_list');
             const vraagTransportList = document.getElementById('vraag_transport_list');
             const aanbodTransportList = document.getElementById('aanbod_transport_list');
             
-            // Maak de lijsten leeg voor het geval er oude data in staat
             vraagLiftList.innerHTML = '';
             aanbodLiftList.innerHTML = '';
             vraagTransportList.innerHTML = '';
             aanbodTransportList.innerHTML = '';
             
-            // Vul de lijsten met de juiste data
             renderGroep(groepen.vraag_lift, vraagLiftList);
             renderGroep(groepen.aanbod_lift, aanbodLiftList);
             renderGroep(groepen.vraag_transport, vraagTransportList);
@@ -92,13 +88,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const { data, error } = await supabaseClient.from('ritten').select('*').eq('edit_token', editToken).single();
             if (error || !data) throw new Error("Oproep niet gevonden of ongeldige link.");
             
-            // Verberg het normale formulier en de lijsten
             vervoerForm.style.display = 'none';
             document.querySelector('.nav-buttons').style.display = 'none';
             document.querySelector('hr').style.display = 'none';
             hoofdTitel.textContent = 'Beheer Je Oproep';
             
-            rittenLijstContainer.innerHTML = ''; // Maak de lijst leeg
+            rittenLijstContainer.innerHTML = ''; 
             
             const rit = data;
             const vertrekDatum = new Date(rit.vertrekdatum).toLocaleDateString('nl-NL');
@@ -146,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    rittenLijstDiv.addEventListener('click', async (event) => {
+    rittenLijstContainer.addEventListener('click', async (event) => {
         if (event.target.classList.contains('delete-button')) {
             if (confirm('Weet je zeker dat je deze oproep definitief wilt verwijderen?')) {
                 const ritId = event.target.dataset.id;
