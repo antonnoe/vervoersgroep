@@ -40,7 +40,33 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             activeData.forEach(rit => groepen[rit.type]?.push(rit));
             
-            // Vind de containers in de HTML
+            // Bouw de HTML opnieuw op in de hoofdcontainer
+            rittenLijstContainer.innerHTML = `
+                <h3 class="full-width-titel" id="liftcentrale">LIFTCENTRALE</h3>
+                <div class="category-container">
+                    <div class="category-column">
+                        <h4 id="lift-aanvragen">Liftaanvragen</h4>
+                        <div id="vraag_lift_list"></div>
+                    </div>
+                    <div class="category-column">
+                        <h4 id="lift-aanbod">Liftaanbod</h4>
+                        <div id="aanbod_lift_list"></div>
+                    </div>
+                </div>
+                <h3 class="full-width-titel" id="transportcentrale">TRANSPORTCENTRALE</h3>
+                <div class="category-container">
+                    <div class="category-column">
+                        <h4 id="transport-aanvragen">Transportaanvragen</h4>
+                        <div id="vraag_transport_list"></div>
+                    </div>
+                    <div class="category-column">
+                        <h4 id="transport-aanbod">Transportaanbod</h4>
+                        <div id="aanbod_transport_list"></div>
+                    </div>
+                </div>
+            `;
+
+            // Vind de containers in de zojuist aangemaakte HTML
             const vraagLiftList = document.getElementById('vraag_lift_list');
             const aanbodLiftList = document.getElementById('aanbod_lift_list');
             const vraagTransportList = document.getElementById('vraag_transport_list');
@@ -59,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function renderGroep(data, container) {
+        if (!container) return; // Veiligheidscheck
         container.innerHTML = '';
         if (data.length === 0) {
             container.innerHTML = '<p><i>Geen oproepen in deze categorie.</i></p>';
