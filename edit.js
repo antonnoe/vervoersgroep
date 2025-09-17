@@ -6,9 +6,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const editForm = document.getElementById('edit-form');
     const loadingMessage = document.getElementById('loading-message');
+    const successModal = document.getElementById('update-success-modal');
+    const okButton = document.getElementById('modal-ok-button-edit');
+
     const urlParams = new URLSearchParams(window.location.search);
     const editToken = urlParams.get('edit');
-    let ritId = null; // Variabele om het ID van de rit te bewaren
+    let ritId = null;
 
     async function laadOproepData() {
         if (!editToken) {
@@ -17,19 +20,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const { data, error } = await supabaseClient
-                .from('ritten')
-                .select('*')
-                .eq('edit_token', editToken)
-                .single();
-
-            if (error || !data) {
-                throw new Error('Oproep niet gevonden of ongeldige link.');
-            }
+            const { data, error } = await supabaseClient.from('ritten').select('*').eq('edit_token', editToken).single();
+            if (error || !data) { throw new Error('Oproep niet gevonden of ongeldige link.'); }
             
-            ritId = data.id; // Bewaar het ID voor de update-functie
+            ritId = data.id;
 
-            // Vul alle formuliervelden in
             editForm.elements['type'].value = data.type;
             editForm.elements['naam_oproeper'].value = data.naam_oproeper;
             editForm.elements['van_plaats'].value = data.van_plaats;
@@ -47,28 +42,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Functie om de wijzigingen op te slaan
     editForm.addEventListener('submit', async function(event) {
         event.preventDefault();
-        
         const formData = new FormData(editForm);
         const updatedData = Object.fromEntries(formData.entries());
 
         try {
-            const { error } = await supabaseClient
-                .from('ritten')
-                .update(updatedData)
-                .eq('id', ritId); // Update de rij met het juiste ID
-
+            const { error } = await supabaseClient.from('ritten').update(updatedData).eq('id', ritId);
             if (error) throw error;
 
-            alert('Je oproep is succesvol bijgewerkt!');
-            window.location.href = 'index.html'; // Stuur terug naar de hoofdpagina
+            // Toon de nieuwe, mooie pop-up
+            successModal.style.display = 'block';
 
         } catch (error) {
             console.error('Update Fout:', error);
             alert(`Er is een fout opgetreden bij het opslaan: ${error.message}`);
         }
+    });
+
+    // Voeg een event listener toe aan de OK knop van de nieuwe pop-up
+    okButton.addEventListener('click', function() {
+        window.location.href = 'index.html'; // Stuur terug naar de hoofdpagina
     });
 
     laadOproepData();
