@@ -11,7 +11,7 @@ label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; 
 input[type="text"], input[type="date"], input[type="email"], select, textarea { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; transition: border-color 0.2s, box-shadow 0.2s; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: #800000; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
 textarea { min-height: 100px; resize: vertical; }
-.form-row { display: flex; gap: 20px; }
+.form-row { display: flex; flex-direction: column; gap: 0; } /* Standaard onder elkaar voor mobiel */
 .form-group { flex: 1; }
 button[type="submit"] { width: 100%; padding: 15px; background-color: #800000; color: white; border: none; border-radius: 6px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
 button[type="submit"]:hover { background-color: #a00000; }
@@ -22,32 +22,15 @@ button[type="submit"]:hover { background-color: #a00000; }
 .radio-group-buttons input[type="radio"]:checked + label { background-color: #800000; color: white; border-color: #800000; }
 
 /* --- Navigatieknoppen --- */
-.nav-buttons {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Maakt de knoppen flexibel */
-    gap: 10px;
-    margin-bottom: 40px;
-}
-.nav-buttons a {
-    display: block;
-    padding: 12px;
-    background-color: #800000; /* Steunkleur als achtergrond */
-    color: white; /* Witte tekst */
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: bold;
-    text-align: center;
-    transition: all 0.2s;
-}
-.nav-buttons a:hover {
-    opacity: 0.85; /* Iets doorzichtig bij hover */
-}
+.nav-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 40px; }
+.nav-buttons a { display: block; padding: 12px; background-color: #800000; color: white; border-radius: 6px; text-decoration: none; font-weight: bold; text-align: center; transition: all 0.2s; }
+.nav-buttons a:hover { opacity: 0.85; }
 
 /* --- Rit Weergave (Nieuwe Layout) --- */
 .full-width-titel { text-align: center; font-size: 1.8em; color: #333; background-color: #e9ecef; padding: 15px; border-radius: 6px; margin: 40px 0 20px 0; }
-.category-container { display: grid; grid-template-columns: 1fr; gap: 30px; }
+.category-container { display: grid; grid-template-columns: 1fr; gap: 20px; }
 .category-column h4 { border-bottom: 2px solid #800000; padding-bottom: 10px; }
-.rit-item { background-color: #f9f9f9; border: 1px solid #ddd; border-left: 5px solid #800000; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
+.rit-item { background-color: #f9f9f9; border: 1px solid #ddd; border-left: 5px solid #800000; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 0; } /* margin-bottom verwijderd */
 .rit-item h5 { margin-top: 0; }
 .rit-item p { margin: 5px 0; line-height: 1.5; word-wrap: break-word; }
 .rit-item a { color: #800000; font-weight: bold; }
@@ -69,4 +52,8 @@ button[type="submit"]:hover { background-color: #a00000; }
 .modal-buttons button:hover { background-color: #800000; color: white; }
 
 /* Media query voor grotere schermen */
-@media (min-width: 768px) { .category-container { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 768px) {
+    .category-container { grid-template-columns: 1fr 1fr; }
+    .form-row { flex-direction: row; }
+    .nav-buttons { grid-template-columns: repeat(4, 1fr); }
+}
