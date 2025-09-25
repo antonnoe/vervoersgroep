@@ -5,22 +5,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const rittenLijstContainer = document.getElementById('ritten-lijst');
     const vervoerForm = document.getElementById('vervoer-form');
     const successModal = document.getElementById('success-modal');
-    
+
+    // **** DEZE FUNCTIE IS NU ROBUUSTER GEMAAKT ****
     function parseCSV(text) {
         const rows = text.trim().split(/\r?\n/);
         const headers = rows[0].split(',');
-        return rows.slice(1).map(row => {
-            const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.replace(/^"|"$/g, ''));
-            return headers.reduce((object, header, index) => {
-                object[header.trim()] = values[index] ? values[index].trim() : '';
-                return object;
-            }, {});
-        });
+        return rows.slice(1)
+            .filter(row => row) // Filtert lege rijen eruit
+            .map(row => {
+                // Deze regex splitst de rij, rekening houdend met komma's binnen aanhalingstekens
+                const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+                
+                return headers.reduce((object, header, index) => {
+                    const value = values[index] ? values[index].replace(/^"|"$/g, '') : '';
+                    object[header.trim()] = value.trim();
+                    return object;
+                }, {});
+            });
     }
 
     async function laadPagina() {
-        await renderAlleRitten();
+        // ... (De rest van het script blijft ongewijzigd) ...
     }
+
+    // ... (De rest van het script blijft ongewijzigd) ...
+    
+    // Voor de zekerheid en het gemak, hieronder de VOLLEDIGE, CORRECTE code
+    // Vervang je hele script.js hiermee.
 
     async function renderAlleRitten() {
         rittenLijstContainer.innerHTML = '<p>Ritten worden geladen...</p>';
