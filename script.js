@@ -5,38 +5,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const rittenLijstContainer = document.getElementById('ritten-lijst');
     const vervoerForm = document.getElementById('vervoer-form');
     const successModal = document.getElementById('success-modal');
-
-    // **** DEZE FUNCTIE IS NU ROBUUSTER GEMAAKT ****
+    
     function parseCSV(text) {
         const rows = text.trim().split(/\r?\n/);
         const headers = rows[0].split(',');
-        return rows.slice(1)
-            .filter(row => row) // Filtert lege rijen eruit
-            .map(row => {
-                // Deze regex splitst de rij, rekening houdend met komma's binnen aanhalingstekens
-                const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
-                
-                return headers.reduce((object, header, index) => {
-                    const value = values[index] ? values[index].replace(/^"|"$/g, '') : '';
-                    object[header.trim()] = value.trim();
-                    return object;
-                }, {});
-            });
+        return rows.slice(1).filter(row => row).map(row => {
+            const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+            return headers.reduce((object, header, index) => {
+                const value = values[index] ? values[index].replace(/^"|"$/g, '') : '';
+                object[header.trim()] = value.trim();
+                return object;
+            }, {});
+        });
     }
 
     async function laadPagina() {
-        // ... (De rest van het script blijft ongewijzigd) ...
+        await renderAlleRitten();
     }
 
-    // ... (De rest van het script blijft ongewijzigd) ...
-    
-    // Voor de zekerheid en het gemak, hieronder de VOLLEDIGE, CORRECTE code
-    // Vervang je hele script.js hiermee.
-
     async function renderAlleRitten() {
-        rittenLijstContainer.innerHTML = '<p>Ritten worden geladen...</p>';
         try {
-            const response = await fetch(GOOGLE_SHEET_URL);
+            const response = await fetch(`${GOOGLE_SHEET_URL}&timestamp=${new Date().getTime()}`); // Cache-buster
             if (!response.ok) throw new Error('Kon de data niet ophalen uit de spreadsheet.');
             
             const csvText = await response.text();
@@ -59,23 +48,15 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             activeData.forEach(rit => groepen[rit.type]?.push(rit));
             
-            rittenLijstContainer.innerHTML = `
-                <h3 class="full-width-titel" id="liftcentrale">LIFTCENTRALE</h3>
-                <div class="category-container">
-                    <div class="category-column"><h4 id="lift-aanvragen">Liftaanvragen</h4><div id="vraag_lift_list"></div></div>
-                    <div class="category-column"><h4 id="lift-aanbod">Liftaanbod</h4><div id="aanbod_lift_list"></div></div>
-                </div>
-                <h3 class="full-width-titel" id="transportcentrale">TRANSPORTCENTRALE</h3>
-                <div class="category-container">
-                    <div class="category-column"><h4 id="transport-aanvragen">Transportaanvragen</h4><div id="vraag_transport_list"></div></div>
-                    <div class="category-column"><h4 id="transport-aanbod">Transportaanbod</h4><div id="aanbod_transport_list"></div></div>
-                </div>
-            `;
+            const vraagLiftList = document.getElementById('vraag_lift_list');
+            const aanbodLiftList = document.getElementById('aanbod_lift_list');
+            const vraagTransportList = document.getElementById('vraag_transport_list');
+            const aanbodTransportList = document.getElementById('aanbod_transport_list');
             
-            renderGroep(groepen.vraag_lift, document.getElementById('vraag_lift_list'));
-            renderGroep(groepen.aanbod_lift, document.getElementById('aanbod_lift_list'));
-            renderGroep(groepen.vraag_transport, document.getElementById('vraag_transport_list'));
-            renderGroep(groepen.aanbod_transport, document.getElementById('aanbod_transport_list'));
+            renderGroep(groepen.vraag_lift, vraagLiftList);
+            renderGroep(groepen.aanbod_lift, aanbodLiftList);
+            renderGroep(groepen.vraag_transport, vraagTransportList);
+            renderGroep(groepen.aanbod_transport, aanbodTransportList);
 
         } catch (error) {
             console.error('Fout bij laden:', error);

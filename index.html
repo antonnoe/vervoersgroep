@@ -1,26 +1,79 @@
-<div style="max-width: 750px; margin: 20px auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif; text-align: center;">
-
-    <div style="position: relative; width: 100%; height: 60px;">
-        
-        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100%; height: 100%; background-color: #800000; border-radius: 6px;">
-            <tbody>
-                <tr>
-                    <td width="30" style="width: 30px;">&nbsp;</td>
-                    <td valign="middle" style="text-align: center; vertical-align: middle;">
-                        <h1 style="font-size: 22px; font-weight: bold; margin: 0; line-height: 1.2; color: #ffffff;">Café Jeudi in onze virtuele Brasserie</h1>
-                        <h2 style="font-size: 12px; font-weight: normal; margin: 0; line-height: 1.4; opacity: 0.9; color: #ffffff;">donderdag 25 september om 18:00 uur</h2>
-                    </td>
-                    
-                    <td valign="middle" width="120" style="width: 120px; text-align: center;">
-                        <span style="display: inline-block; background-color: #ffffff; color: #800000; padding: 7px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; white-space: nowrap;">ENTREZ ICI</span>
-                    </td>
-
-                    <td width="30" style="width: 30px;">&nbsp;</td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <a href="https://meet.google.com/kog-nztt-gfh" target="_blank" rel="noopener" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; text-decoration: none;"></a>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://docs.google.com https://hooks.zapier.com;">
+    <title>Vervoerscentrale</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>PLAATS EEN NIEUWE OPROEP</h2>
+            <form id="vervoer-form">
+                <fieldset class="radio-group-buttons">
+                    <legend>Ik wil graag...</legend>
+                    <div><input type="radio" id="aanbod_lift" name="type" value="aanbod_lift" checked><label for="aanbod_lift">Een lift aanbieden</label></div>
+                    <div><input type="radio" id="vraag_lift" name="type" value="vraag_lift"><label for="vraag_lift">Een lift aanvragen</label></div>
+                    <div><input type="radio" id="aanbod_transport" name="type" value="aanbod_transport"><label for="aanbod_transport">Goederentransport aanbieden</label></div>
+                    <div><input type="radio" id="vraag_transport" name="type" value="vraag_transport"><label for="vraag_transport">Goederentransport aanvragen</label></div>
+                </fieldset>
+                <label for="naam_oproeper">Naam</label>
+                <input type="text" id="naam_oproeper" name="naam_oproeper" required>
+                <div class="form-row">
+                    <div class="form-group"><label for="van_plaats">Van (plaatsnaam en regio)</label><input type="text" id="van_plaats" name="van_plaats" required></div>
+                    <div class="form-group"><label for="naar_plaats">Naar (plaatsnaam en regio)</label><input type="text" id="naar_plaats" name="naar_plaats" required></div>
+                </div>
+                <label for="vertrekdatum">Datum</label>
+                <input type="date" id="vertrekdatum" name="vertrekdatum" required>
+                <label for="details">Details</label>
+                <textarea id="details" name="details" placeholder="Bijv: exacte plaatsnaam, aantal personen, bagage, etc." required></textarea>
+                <label for="contact_info">E-mail</label>
+                <input type="email" id="contact_info" name="contact_info" required>
+                <button type="submit">Plaats oproep</button>
+            </form>
+        </div>
+        <hr>
+        <h2 id="hoofdTitel">VRAAG EN AANBOD</h2>
+        <div class="nav-buttons">
+            <a href="#liftcentrale">Liftaanvragen & -aanbod</a>
+            <a href="#transportcentrale">Transportaanvragen & -aanbod</a>
+        </div>
+        <div id="ritten-lijst">
+            <h3 class="full-width-titel" id="liftcentrale">LIFTCENTRALE</h3>
+            <div class="category-container">
+                <div class="category-column">
+                    <h4>Liftaanvragen</h4>
+                    <div id="vraag_lift_list"><p><i>Laden...</i></p></div>
+                </div>
+                <div class="category-column">
+                    <h4>Liftaanbod</h4>
+                    <div id="aanbod_lift_list"><p><i>Laden...</i></p></div>
+                </div>
+            </div>
+            <h3 class="full-width-titel" id="transportcentrale">TRANSPORTCENTRALE</h3>
+            <div class="category-container">
+                <div class="category-column">
+                    <h4>Transportaanvragen</h4>
+                    <div id="vraag_transport_list"><p><i>Laden...</i></p></div>
+                </div>
+                <div class="category-column">
+                    <h4>Transportaanbod</h4>
+                    <div id="aanbod_transport_list"><p><i>Laden...</i></p></div>
+                </div>
+            </div>
+        </div>
     </div>
-
-</div>
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <h3>Moderator Nederlanders.fr meldt het volgende</h3>
+            <p id="modal-text"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-button">OK</button>
+                <button id="modal-new-button">Plaats nog een oproep</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js?v=30"></script> </body>
+</html>
