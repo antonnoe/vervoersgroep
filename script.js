@@ -1,60 +1,146 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // We laten de Supabase client hier nog even staan voor het LEZEN van de ritten
-    const SUPABASE_URL = 'https://czypzinmqgixqmxnvhxk.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6eXB6aW5tcWdpeHFteG52aHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5MjYxNzgsImV4cCI6MjA3MzUwMjE3OH0.2gIA40DWVyE5D68E-pt2zSEyBGC__Dnetrk35pH8gFo';
-    const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    // URL van je gepubliceerde Google Sheet CSV
+    const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSN4dKR5-eO0UYvzsIhUFRoAETbFRQHmoSzhYDY5Ljer5ebt1dJFk1EuCGFt1w01FyYbX37kZGg4H-t/pub?gid=1598670068&single=true&output=csv';
+    const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/624843/u11gttx/';
 
     const rittenLijstContainer = document.getElementById('ritten-lijst');
     const vervoerForm = document.getElementById('vervoer-form');
     const successModal = document.getElementById('success-modal');
     const hoofdTitel = document.querySelector('h2#hoofdTitel');
 
-    // De laad-functies blijven voor nu hetzelfde
-    async function laadPagina() { /* ... */ }
-    async function renderAlleRitten() { /* ... */ }
-    function renderGroep(data, container) { /* ... */ }
-    async function renderBeheerWeergave(editToken) { /* ... */ }
+    // Functie om de CSV data van Google Sheets te parsen
+    function parseCSV(text) {
+        const rows = text.trim().split(/\r?\n/);
+        const headers = rows[0].split(',');
+        return rows.slice(1).map(row => {
+            const values = row.split(',');
+            return headers.reduce((object, header, index) => {
+                object[header.trim()] = values[index].trim();
+                return object;
+            }, {});
+        });
+    }
 
-    // DIT IS DE AANGEPASTE FUNCTIE
+    async function laadPagina() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const editToken = urlParams.get('edit');
+
+        if (editToken) {
+            await renderBeheerWeergave(editToken);
+        } else {
+            await renderAlleRitten();
+        }
+    }
+
+    async function renderAlleRitten() {
+        rittenLijstContainer.innerHTML = '<p>Ritten worden geladen...</p>';
+        try {
+            const response = await fetch(GOOGLE_SHEET_URL);
+            if (!response.ok) throw new Error('Kon de data niet ophalen uit de spreadsheet.');
+            
+            const csvText = await response.text();
+            const data = parseCSV(csvText).reverse(); // .reverse() om de nieuwste eerst te tonen
+
+            const vandaag = new Date();
+            vandaag.setHours(0, 0, 0, 0);
+            const activeData = data.filter(rit => {
+                if (!rit.vertrekdatum) return false;
+                const vertrekDatum = new Date(rit.vertrekdatum);
+                const dagenVerschil = (vandaag - vertrekDatum) / (1000 * 60 * 60 * 24);
+                return dagenVerschil <= 3;
+            });
+
+            const groepen = {
+                vraag_lift: [], aanbod_lift: [],
+                vraag_transport: [], aanbod_transport: []
+            };
+            activeData.forEach(rit => groepen[rit.type]?.push(rit));
+            
+            rittenLijstContainer.innerHTML = `
+                <h3 class="full-width-titel" id="liftcentrale">LIFTCENTRALE</h3>
+                <div class="category-container">
+                    <div class="category-column"><h4 id="lift-aanvragen">Liftaanvragen</h4><div id="vraag_lift_list"></div></div>
+                    <div class="category-column"><h4 id="lift-aanbod">Liftaanbod</h4><div id="aanbod_lift_list"></div></div>
+                </div>
+                <h3 class="full-width-titel" id="transportcentrale">TRANSPORTCENTRALE</h3>
+                <div class="category-container">
+                    <div class="category-column"><h4 id="transport-aanvragen">Transportaanvragen</h4><div id="vraag_transport_list"></div></div>
+                    <div class="category-column"><h4 id="transport-aanbod">Transportaanbod</h4><div id="aanbod_transport_list"></div></div>
+                </div>
+            `;
+            
+            renderGroep(groepen.vraag_lift, document.getElementById('vraag_lift_list'));
+            renderGroep(groepen.aanbod_lift, document.getElementById('aanbod_lift_list'));
+            renderGroep(groepen.vraag_transport, document.getElementById('vraag_transport_list'));
+            renderGroep(groepen.aanbod_transport, document.getElementById('aanbod_transport_list'));
+
+        } catch (error) {
+            console.error('Fout bij laden:', error);
+            rittenLijstContainer.innerHTML = `<p style="color:red;">Fout: ${error.message}</p>`;
+        }
+    }
+    
+    function renderGroep(data, container) {
+        if (!container) return;
+        container.innerHTML = '';
+        if (data.length === 0) {
+            container.innerHTML = '<p><i>Geen oproepen in deze categorie.</i></p>';
+        } else {
+            data.forEach(rit => {
+                const ritDiv = document.createElement('div');
+                ritDiv.className = 'rit-item';
+                const vertrekDatum = new Date(rit.vertrekdatum).toLocaleDateString('nl-NL');
+                ritDiv.innerHTML = `
+                    <h5>${rit.van_plaats} &rarr; ${rit.naar_plaats}</h5>
+                    <p><strong>Door:</strong> ${rit.naam_oproeper || 'Onbekend'}</p>
+                    <p><strong>Datum:</strong> ${vertrekDatum}</p>
+                    <p><strong>Details:</strong> ${rit.details || 'Geen'}</p>
+                    <p><strong>Contact:</strong> <a href="mailto:${rit.contact_info}">${rit.contact_info}</a></p>
+                `;
+                container.appendChild(ritDiv);
+            });
+        }
+    }
+
+    async function renderBeheerWeergave(editToken) {
+        // Deze functie moet nu ook uit de Google Sheet lezen
+        // Voor nu laten we deze even leeg, de focus ligt op het tonen van de lijst
+        rittenLijstContainer.innerHTML = '<p>Beheer-functie wordt nog omgebouwd naar Google Sheets.</p>';
+    }
+
     vervoerForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const formData = new FormData(vervoerForm);
         const ritData = Object.fromEntries(formData.entries());
 
-        // Voeg de extra velden toe die de spreadsheet en de e-mail nodig hebben
-        ritData.id = new Date().getTime(); // Simpel uniek ID
+        ritData.id = new Date().getTime();
         ritData.created_at = new Date().toISOString();
         ritData.edit_token = crypto.randomUUID();
 
         try {
-            // Stuur de data naar de Zapier Webhook URL
-            const response = await fetch('https://hooks.zapier.com/hooks/catch/624843/u11gttx/', {
+            const response = await fetch(ZAPIER_WEBHOOK_URL, {
                 method: 'POST',
                 body: JSON.stringify(ritData)
             });
+            if (!response.ok) throw new Error('Er is een fout opgetreden bij het versturen van de data.');
 
-            if (!response.ok) {
-                throw new Error('Er is een fout opgetreden bij het versturen van de data.');
-            }
-
-            // Toon de succes-pop-up (de e-mail wordt nu door Zapier verstuurd)
             document.getElementById('modal-text').textContent = "Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is onderweg naar je toe gestuurd.";
             successModal.style.display = 'block';
-            
             vervoerForm.reset();
-            // We laden de lijst nog niet opnieuw, dat doen we in de volgende fase
-
+            
         } catch (error) {
             console.error('Fout bij plaatsen:', error);
             alert(`Helaas is er een technische fout opgetreden:\n\n${error.message}`);
         }
     });
 
-    // De rest van de event listeners blijven hetzelfde
-    rittenLijstContainer.addEventListener('click', async (event) => { /* ... */ });
+    rittenLijstContainer.addEventListener('click', async (event) => {
+        // De 'delete' knop functionaliteit moet ook worden omgebouwd.
+        // Dit vereist een nieuwe Zap die luistert naar een 'delete' webhook.
+    });
+
     document.getElementById('modal-ok-button').addEventListener('click', () => { window.location.href = 'https://www.nederlanders.fr/'; });
     document.getElementById('modal-new-button').addEventListener('click', () => { successModal.style.display = 'none'; vervoerForm.scrollIntoView({ behavior: 'smooth' }); });
 
-    // laadPagina(); // We laten deze nog even uit staan
+    laadPagina();
 });

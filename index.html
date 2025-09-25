@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://czypzinmqgixqmxnvhxk.supabase.co https://hooks.zapier.com;">
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://docs.google.com https://hooks.zapier.com;">
     <title>Vervoerscentrale</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -72,7 +72,31 @@
         </div>
 
         <div id="ritten-lijst">
+            <div id="ritten-structuur-container">
+                <h3 class="full-width-titel" id="liftcentrale">LIFTCENTRALE</h3>
+                <div class="category-container">
+                    <div class="category-column">
+                        <h4 id="lift-aanvragen">Liftaanvragen</h4>
+                        <div id="vraag_lift_list"></div>
+                    </div>
+                    <div class="category-column">
+                        <h4 id="lift-aanbod">Liftaanbod</h4>
+                        <div id="aanbod_lift_list"></div>
+                    </div>
+                </div>
+                <h3 class="full-width-titel" id="transportcentrale">TRANSPORTCENTRALE</h3>
+                <div class="category-container">
+                    <div class="category-column">
+                        <h4 id="transport-aanvragen">Transportaanvragen</h4>
+                        <div id="vraag_transport_list"></div>
+                    </div>
+                    <div class="category-column">
+                        <h4 id="transport-aanbod">Transportaanbod</h4>
+                        <div id="aanbod_transport_list"></div>
+                    </div>
+                </div>
             </div>
+        </div>
     </div>
     
     <div id="success-modal" class="modal">
@@ -86,7 +110,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=21"></script>
+    <script src="script.js?v=23"></script>
 </body>
 </html>
