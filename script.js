@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return rows.slice(1).map(row => {
             const values = row.split(',');
             return headers.reduce((object, header, index) => {
-                object[header.trim()] = values[index].trim();
+                object[header.trim()] = values[index] ? values[index].trim() : '';
                 return object;
             }, {});
         });
@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const editToken = urlParams.get('edit');
 
         if (editToken) {
+            // De beheer-weergave bouwen we hierna
             await renderBeheerWeergave(editToken);
         } else {
             await renderAlleRitten();
@@ -39,7 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) throw new Error('Kon de data niet ophalen uit de spreadsheet.');
             
             const csvText = await response.text();
-            const data = parseCSV(csvText).reverse(); // .reverse() om de nieuwste eerst te tonen
+            let data = parseCSV(csvText);
+            
+            data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
             const vandaag = new Date();
             vandaag.setHours(0, 0, 0, 0);
@@ -56,23 +59,43 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             activeData.forEach(rit => groepen[rit.type]?.push(rit));
             
+            // Bouw de basis HTML-structuur opnieuw op
             rittenLijstContainer.innerHTML = `
                 <h3 class="full-width-titel" id="liftcentrale">LIFTCENTRALE</h3>
                 <div class="category-container">
-                    <div class="category-column"><h4 id="lift-aanvragen">Liftaanvragen</h4><div id="vraag_lift_list"></div></div>
-                    <div class="category-column"><h4 id="lift-aanbod">Liftaanbod</h4><div id="aanbod_lift_list"></div></div>
+                    <div class="category-column">
+                        <h4 id="lift-aanvragen">Liftaanvragen</h4>
+                        <div id="vraag_lift_list"></div>
+                    </div>
+                    <div class="category-column">
+                        <h4 id="lift-aanbod">Liftaanbod</h4>
+                        <div id="aanbod_lift_list"></div>
+                    </div>
                 </div>
                 <h3 class="full-width-titel" id="transportcentrale">TRANSPORTCENTRALE</h3>
                 <div class="category-container">
-                    <div class="category-column"><h4 id="transport-aanvragen">Transportaanvragen</h4><div id="vraag_transport_list"></div></div>
-                    <div class="category-column"><h4 id="transport-aanbod">Transportaanbod</h4><div id="aanbod_transport_list"></div></div>
+                    <div class="category-column">
+                        <h4 id="transport-aanvragen">Transportaanvragen</h4>
+                        <div id="vraag_transport_list"></div>
+                    </div>
+                    <div class="category-column">
+                        <h4 id="transport-aanbod">Transportaanbod</h4>
+                        <div id="aanbod_transport_list"></div>
+                    </div>
                 </div>
             `;
             
-            renderGroep(groepen.vraag_lift, document.getElementById('vraag_lift_list'));
-            renderGroep(groepen.aanbod_lift, document.getElementById('aanbod_lift_list'));
-            renderGroep(groepen.vraag_transport, document.getElementById('vraag_transport_list'));
-            renderGroep(groepen.aanbod_transport, document.getElementById('aanbod_transport_list'));
+            // Vind nu de containers die we zojuist hebben aangemaakt
+            const vraagLiftList = document.getElementById('vraag_lift_list');
+            const aanbodLiftList = document.getElementById('aanbod_lift_list');
+            const vraagTransportList = document.getElementById('vraag_transport_list');
+            const aanbodTransportList = document.getElementById('aanbod_transport_list');
+            
+            // Vul de lijsten met de juiste data
+            renderGroep(groepen.vraag_lift, vraagLiftList);
+            renderGroep(groepen.aanbod_lift, aanbodLiftList);
+            renderGroep(groepen.vraag_transport, vraagTransportList);
+            renderGroep(groepen.aanbod_transport, aanbodTransportList);
 
         } catch (error) {
             console.error('Fout bij laden:', error);
@@ -103,9 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function renderBeheerWeergave(editToken) {
-        // Deze functie moet nu ook uit de Google Sheet lezen
-        // Voor nu laten we deze even leeg, de focus ligt op het tonen van de lijst
-        rittenLijstContainer.innerHTML = '<p>Beheer-functie wordt nog omgebouwd naar Google Sheets.</p>';
+        // Logica voor bewerken komt hier later
     }
 
     vervoerForm.addEventListener('submit', async (event) => {
@@ -113,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(vervoerForm);
         const ritData = Object.fromEntries(formData.entries());
 
-        ritData.id = new Date().getTime();
+        ritData.id = new Date().getTime().toString();
         ritData.created_at = new Date().toISOString();
         ritData.edit_token = crypto.randomUUID();
 
@@ -134,13 +155,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    rittenLijstContainer.addEventListener('click', async (event) => {
-        // De 'delete' knop functionaliteit moet ook worden omgebouwd.
-        // Dit vereist een nieuwe Zap die luistert naar een 'delete' webhook.
-    });
-
     document.getElementById('modal-ok-button').addEventListener('click', () => { window.location.href = 'https://www.nederlanders.fr/'; });
-    document.getElementById('modal-new-button').addEventListener('click', () => { successModal.style.display = 'none'; vervoerForm.scrollIntoView({ behavior: 'smooth' }); });
+    document.getElementById('modal-new-button').addEventListener('click', () => { 
+        successModal.style.display = 'none'; 
+        vervoerForm.scrollIntoView({ behavior: 'smooth' });
+    });
 
     laadPagina();
 });
