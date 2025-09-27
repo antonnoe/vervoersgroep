@@ -1,43 +1,42 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const SUPABASE_URL = 'https://czypzinmqgixqmxnvhxk.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6eXB6aW5tcWdpeHFteG52aHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5MjYxNzgsImV4cCI6MjA3MzUwMjE3OH0.2gIA40DWVyE5D68E-pt2zSEyBGC__Dnetrk35pH8gFo';
-    const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSN4dKR5-eO0UYvzsIhUFRoAETbFRQHmoSzhYDY5Ljer5ebt1dJFk1EuCGFt1w01FyYbX37kZGg4H-t/pub?gid=1598670068&single=true&output=csv';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxr0IID6SNXKzrH0gMXTN2qEWmLnIx-iDRAr0KiBkDT8c43Rli4EIPaBUuf_LLewUgCnQ/exec';
 
     const editForm = document.getElementById('edit-form');
     const loadingMessage = document.getElementById('loading-message');
-    const successModal = document.getElementById('update-success-modal');
-    const okButton = document.getElementById('modal-ok-button-edit');
-
     const urlParams = new URLSearchParams(window.location.search);
     const editToken = urlParams.get('edit');
-    let ritId = null;
+
+    function parseCSV(text) {
+        // ... (deze functie is hetzelfde als in script.js)
+    }
 
     async function laadOproepData() {
         if (!editToken) {
-            loadingMessage.innerHTML = '<p style="color:red;">Fout: Geen bewerk-token gevonden. Ga terug naar de hoofdpagina.</p>';
+            loadingMessage.innerHTML = '<p style="color:red;">Fout: Geen bewerk-token gevonden.</p>';
             return;
         }
-
         try {
-            const { data, error } = await supabaseClient.from('ritten').select('*').eq('edit_token', editToken).single();
-            if (error || !data) { throw new Error('Oproep niet gevonden of ongeldige link.'); }
+            const response = await fetch(`${GOOGLE_SHEET_URL}&timestamp=${new Date().getTime()}`);
+            if (!response.ok) throw new Error('Kon de data niet ophalen.');
+            const csvText = await response.text();
+            const allData = parseCSV(csvText);
+            const rit = allData.find(r => r.edit_token === editToken);
+            if (!rit) throw new Error('Oproep niet gevonden of ongeldige link.');
             
-            ritId = data.id;
-
-            editForm.elements['type'].value = data.type;
-            editForm.elements['naam_oproeper'].value = data.naam_oproeper;
-            editForm.elements['van_plaats'].value = data.van_plaats;
-            editForm.elements['naar_plaats'].value = data.naar_plaats;
-            editForm.elements['vertrekdatum'].value = data.vertrekdatum;
-            editForm.elements['details'].value = data.details;
-            editForm.elements['contact_info'].value = data.contact_info;
+            // Vul alle formuliervelden in
+            editForm.elements['type'].value = rit.type;
+            editForm.elements['naam_oproeper'].value = rit.naam_oproeper;
+            editForm.elements['van_plaats'].value = rit.van_plaats;
+            editForm.elements['naar_plaats'].value = rit.naar_plaats;
+            editForm.elements['vertrekdatum'].value = rit.vertrekdatum;
+            editForm.elements['details'].value = rit.details;
+            editForm.elements['contact_info'].value = rit.contact_info;
             
             loadingMessage.style.display = 'none';
             editForm.style.display = 'block';
 
         } catch (error) {
-            console.error('Fout:', error);
             loadingMessage.innerHTML = `<p style="color:red;">${error.message}</p>`;
         }
     }
@@ -46,23 +45,21 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         const formData = new FormData(editForm);
         const updatedData = Object.fromEntries(formData.entries());
+        updatedData.edit_token = editToken;
+        updatedData.action = 'update';
 
         try {
-            const { error } = await supabaseClient.from('ritten').update(updatedData).eq('id', ritId);
-            if (error) throw error;
-
-            // Toon de nieuwe, mooie pop-up
-            successModal.style.display = 'block';
-
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'text/plain;charset=utf-8'},
+                body: JSON.stringify(updatedData)
+            });
+            alert('Je oproep is succesvol bijgewerkt!');
+            window.location.href = 'index.html';
         } catch (error) {
-            console.error('Update Fout:', error);
             alert(`Er is een fout opgetreden bij het opslaan: ${error.message}`);
         }
-    });
-
-    // Voeg een event listener toe aan de OK knop van de nieuwe pop-up
-    okButton.addEventListener('click', function() {
-        window.location.href = 'index.html'; // Stuur terug naar de hoofdpagina
     });
 
     laadOproepData();
