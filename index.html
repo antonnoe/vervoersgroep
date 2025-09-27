@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://docs.google.com https://hooks.zapier.com;">
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' *.google.com *.googleusercontent.com https://hooks.zapier.com;">
     <title>Vervoerscentrale</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -65,30 +65,32 @@
         <h2 id="hoofdTitel">VRAAG EN AANBOD</h2>
         
         <div class="nav-buttons">
-            <a href="#liftcentrale">Liftaanvragen & -aanbod</a>
-            <a href="#transportcentrale">Transportaanvragen & -aanbod</a>
+            <a href="#lift-aanvragen">Liftaanvragen</a>
+            <a href="#lift-aanbod">Liftaanbod</a>
+            <a href="#transport-aanvragen">Transportaanvragen</a>
+            <a href="#transport-aanbod">Transportaanbod</a>
         </div>
-        
+
         <div id="ritten-lijst">
             <h3 class="full-width-titel" id="liftcentrale">LIFTCENTRALE</h3>
             <div class="category-container">
                 <div class="category-column">
-                    <h4>Liftaanvragen</h4>
+                    <h4 id="lift-aanvragen">Liftaanvragen</h4>
                     <div id="vraag_lift_list"><p><i>Laden...</i></p></div>
                 </div>
                 <div class="category-column">
-                    <h4>Liftaanbod</h4>
+                    <h4 id="lift-aanbod">Liftaanbod</h4>
                     <div id="aanbod_lift_list"><p><i>Laden...</i></p></div>
                 </div>
             </div>
             <h3 class="full-width-titel" id="transportcentrale">TRANSPORTCENTRALE</h3>
             <div class="category-container">
                 <div class="category-column">
-                    <h4>Transportaanvragen</h4>
+                    <h4 id="transport-aanvragen">Transportaanvragen</h4>
                     <div id="vraag_transport_list"><p><i>Laden...</i></p></div>
                 </div>
                 <div class="category-column">
-                    <h4>Transportaanbod</h4>
+                    <h4 id="transport-aanbod">Transportaanbod</h4>
                     <div id="aanbod_transport_list"><p><i>Laden...</i></p></div>
                 </div>
             </div>
@@ -106,6 +108,5 @@
         </div>
     </div>
     
-    <script src="script.js?v=35"></script>
-</body>
+    <script src="script.js?v=37"></script> </body>
 </html>
