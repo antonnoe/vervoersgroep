@@ -26,7 +26,7 @@ button[type="submit"]:hover { background-color: #a00000; }
 .nav-buttons a { display: block; padding: 12px; background-color: #800000; color: white; border-radius: 6px; text-decoration: none; font-weight: bold; text-align: center; transition: all 0.2s; }
 .nav-buttons a:hover { opacity: 0.85; }
 
-/* --- Rit Weergave (Nieuwe Layout) --- */
+/* --- Rit Weergave --- */
 .full-width-titel { text-align: center; font-size: 1.8em; color: #333; background-color: #e9ecef; padding: 15px; border-radius: 6px; margin: 40px 0 20px 0; }
 .category-container { display: grid; grid-template-columns: 1fr; gap: 20px; }
 .category-column h4 { border-bottom: 2px solid #800000; padding-bottom: 10px; }
@@ -35,7 +35,7 @@ button[type="submit"]:hover { background-color: #a00000; }
 .rit-item p { margin: 5px 0; line-height: 1.5; word-wrap: break-word; }
 .rit-item a { color: #800000; font-weight: bold; }
 
-/* --- Beheer en Pop-up Stijlen --- */
+/* --- Beheer en Pop-up --- */
 .beheer-item { grid-column: 1 / -1; }
 .beheer-knoppen { display: flex; gap: 10px; margin-top: 15px; }
 .edit-button, .delete-button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; color: white; font-weight: bold; text-align: center; font-size: 0.9em; }

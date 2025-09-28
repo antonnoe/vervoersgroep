@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
     const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSN4dKR5-eO0UYvzsIhUFRoAETbFRQHmoSzhYDY5Ljer5ebt1dJFk1EuCGFt1w01FyYbX37kZGg4H-t/pub?gid=1598670068&single=true&output=csv';
-    // **** DEZE REGEL WAS PER ONGELUK VERWIJDERD EN IS NU TERUG ****
     const ZAPIER_INSERT_WEBHOOK = 'https://hooks.zapier.com/hooks/catch/624843/u11gttx/';
     const GOOGLE_SCRIPT_DELETE_URL = 'https://script.google.com/macros/s/AKfycbxr0IID6SNXKzrH0gMXTN2qEWmLnIx-iDRAr0KiBkDT8c43Rli4EIPaBUuf_LLewUgCnQ/exec';
 
@@ -50,25 +49,19 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             const groepen = { vraag_lift: [], aanbod_lift: [], vraag_transport: [], aanbod_transport: [] };
             activeData.forEach(rit => groepen[rit.type]?.push(rit));
-            rittenLijstContainer.innerHTML = `
-                <h3 class="full-width-titel" id="liftcentrale">LIFTCENTRALE</h3>
-                <div class="category-container">
-                    <div class="category-column"><h4 id="lift-aanvragen">Liftaanvragen</h4><div id="vraag_lift_list"></div></div>
-                    <div class="category-column"><h4 id="lift-aanbod">Liftaanbod</h4><div id="aanbod_lift_list"></div></div>
-                </div>
-                <h3 class="full-width-titel" id="transportcentrale">TRANSPORTCENTRALE</h3>
-                <div class="category-container">
-                    <div class="category-column"><h4 id="transport-aanvragen">Transportaanvragen</h4><div id="vraag_transport_list"></div></div>
-                    <div class="category-column"><h4 id="transport-aanbod">Transportaanbod</h4><div id="aanbod_transport_list"></div></div>
-                </div>
-            `;
-            renderGroep(groepen.vraag_lift, document.getElementById('vraag_lift_list'));
-            renderGroep(groepen.aanbod_lift, document.getElementById('aanbod_lift_list'));
-            renderGroep(groepen.vraag_transport, document.getElementById('vraag_transport_list'));
-            renderGroep(groepen.aanbod_transport, document.getElementById('aanbod_transport_list'));
+            
+            const vraagLiftList = document.getElementById('vraag_lift_list');
+            const aanbodLiftList = document.getElementById('aanbod_lift_list');
+            const vraagTransportList = document.getElementById('vraag_transport_list');
+            const aanbodTransportList = document.getElementById('aanbod_transport_list');
+            
+            renderGroep(groepen.vraag_lift, vraagLiftList);
+            renderGroep(groepen.aanbod_lift, aanbodLiftList);
+            renderGroep(groepen.vraag_transport, vraagTransportList);
+            renderGroep(groepen.aanbod_transport, aanbodTransportList);
         } catch (error) {
             console.error('Fout bij laden:', error);
-            rittenLijstContainer.innerHTML = `<p style="color:red;">Fout: ${error.message}</p>`;
+            rittenLijstContainer.innerHTML = `<p style="color:red; grid-column: 1 / -1;">Fout bij het laden van de oproepen. Probeer de pagina te vernieuwen.</p>`;
         }
     }
     
@@ -97,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const rit = allData.find(r => r.edit_token === editToken);
             if (!rit) throw new Error("Oproep niet gevonden of ongeldige link.");
             
-            vervoerForm.style.display = 'none';
+            vervoerForm.parentElement.style.display = 'none';
             document.querySelector('.nav-buttons').style.display = 'none';
             document.querySelector('hr').style.display = 'none';
             hoofdTitel.textContent = 'Beheer Je Oproep';
@@ -154,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: {'Content-Type': 'text/plain;charset=utf-8'},
-                        body: JSON.stringify({ edit_token: editToken })
+                        body: JSON.stringify({ edit_token: editToken, action: 'delete' })
                     });
                     alert('De oproep is succesvol verwijderd! De lijst wordt opnieuw geladen.');
                     window.location.href = 'index.html';

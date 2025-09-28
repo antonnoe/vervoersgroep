@@ -8,7 +8,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const editToken = urlParams.get('edit');
 
     function parseCSV(text) {
-        // ... (deze functie is hetzelfde als in script.js)
+        const rows = text.trim().split(/\r?\n/);
+        const headers = rows[0].split(',');
+        return rows.slice(1).filter(row => row && row.split(',')[0].trim() !== '').map(row => {
+            const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+            return headers.reduce((object, header, index) => {
+                const value = values[index] ? values[index].replace(/^"|"$/g, '') : '';
+                object[header.trim()] = value.trim();
+                return object;
+            }, {});
+        });
     }
 
     async function laadOproepData() {
@@ -24,7 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const rit = allData.find(r => r.edit_token === editToken);
             if (!rit) throw new Error('Oproep niet gevonden of ongeldige link.');
             
-            // Vul alle formuliervelden in
             editForm.elements['type'].value = rit.type;
             editForm.elements['naam_oproeper'].value = rit.naam_oproeper;
             editForm.elements['van_plaats'].value = rit.van_plaats;
