@@ -6,9 +6,116 @@
     <meta http-equiv="Content-Security-Policy" content="connect-src 'self' *.google.com *.googleusercontent.com https://hooks.zapier.com;">
     <title>Vervoerscentrale</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- FAQ Specifieke Stijlen --- */
+        .faq-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        #faq-toggle-button {
+            background-color: #800000;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 20px;
+        }
+        #faq-toggle-button:hover {
+            background-color: #a00000;
+        }
+        .faq-container { 
+            text-align: left;
+        }
+        .hidden {
+            display: none;
+        }
+        .faq-container h2 { 
+            color: #800000; 
+            text-align: center; 
+            margin-bottom: 30px;
+        }
+        details {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        summary {
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+        }
+        details[open] summary {
+            color: #800000;
+        }
+        details p, details ul {
+            margin-top: 15px;
+            line-height: 1.6;
+            color: #555;
+        }
+        .faq-container ul {
+            padding-left: 20px;
+        }
+        .faq-container li {
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
+
+        <div class="faq-section">
+            <button id="faq-toggle-button">Toon/Verberg FAQ's</button>
+    
+            <div id="faq-wrapper" class="faq-container hidden">
+                <h2>Veelgestelde Vragen (FAQ)</h2>
+                <details>
+                    <summary>Wat is het doel van deze Vervoerscentrale?</summary>
+                    <p>Deze pagina is een digitaal prikbord voor de Nederlanders.fr gemeenschap. U kunt hier kosteloos een oproep plaatsen als u vervoer zoekt of aanbiedt. Dit geldt zowel voor het meenemen van personen (een lift) als voor het vervoeren van goederen.</p>
+                </details>
+                <details>
+                    <summary>Hoe plaats ik een nieuwe oproep?</summary>
+                    <p>Volg de stappen in het formulier bovenaan de pagina. Kies eerst het type oproep, vul uw naam, de route en de datum in. Vul uw e-mailadres in en klik op "Plaats oproep". Zorg ervoor dat u het "Details"-veld zo volledig mogelijk invult (zie de volgende vraag voor tips).</p>
+                </details>
+                <details>
+                    <summary>Wat plaats ik in het "Details"-veld?</summary>
+                    <p>Hoe meer details u geeft, hoe groter de kans op een succesvolle match. Denk bijvoorbeeld aan:</p>
+                    <ul>
+                        <li><b>Als u een lift AANVRAAGT:</b> Geef aan of u bereid bent bij te dragen aan de brandstofkosten en of u eventueel een stuk zou kunnen rijden.</li>
+                        <li><b>Als u een lift AANBIEDT:</b> Vermeld of u een bijdrage in de kosten verwacht.</li>
+                        <li><b>Als u goederenvervoer AANVRAAGT:</b> Wees zo duidelijk mogelijk over de omvang en het gewicht van de goederen (bijv. "twee verhuisdozen en een kleine koffer").</li>
+                        <li><b>Als u goederenvervoer AANBIEDT:</b> Geef een indicatie van de beschikbare ruimte (bijv. "ruimte voor een fiets" of "een halve kofferbak") en een schatting van de kosten. Dit mag ook "Nader te bepalen" zijn.</li>
+                    </ul>
+                </details>
+                <details>
+                    <summary>Ik heb een oproep geplaatst, wat gebeurt er nu?</summary>
+                    <p>Direct na het plaatsen ontvangt u een automatische e-mail op het opgegeven adres. Deze e-mail bevat een <strong>unieke en persoonlijke link</strong> waarmee u later uw oproep kunt aanpassen of verwijderen. Bewaar deze e-mail dus goed!</p>
+                </details>
+                <details>
+                    <summary>Hoe kan ik mijn oproep aanpassen of verwijderen?</summary>
+                    <p>Gebruik de persoonlijke beheerlink uit de e-mail die u heeft ontvangen. Als u op deze link klikt, komt u op een speciale pagina waar u uw oproep kunt inzien en de opties krijgt om deze aan te passen of definitief te verwijderen.</p>
+                </details>
+                <details>
+                    <summary>Hoe lang blijft mijn oproep zichtbaar?</summary>
+                    <p>Uw oproep blijft zichtbaar tot <strong>3 dagen na de opgegeven vertrekdatum</strong>. Oudere oproepen worden automatisch verborgen om de lijst relevant en actueel te houden.</p>
+                </details>
+                <details>
+                    <summary>Ik heb mijn oproep verwijderd, maar ik zie hem nog steeds. Wat nu?</summary>
+                    <p>Dit wordt vrijwel altijd veroorzaakt door het geheugen (de "cache") van uw browser. De oproep is op de server al wel verwijderd. Voer een <strong>harde refresh</strong> uit om de pagina te dwingen de allernieuwste versie te laden. Dit doet u met `Ctrl+Shift+R` (op Windows) of `Cmd+Shift+R` (op een Mac). De oproep zal dan verdwenen zijn.</p>
+                </details>
+                <details>
+                    <summary>Is mijn e-mailadres zichtbaar voor iedereen?</summary>
+                    <p>Ja, uw e-mailadres wordt weergegeven als een klikbare link in uw oproep. Dit stelt geïnteresseerden in staat om direct en eenvoudig contact met u op te nemen. Plaats alleen een oproep als u hiermee akkoord gaat.</p>
+                </details>
+            </div>
+        </div>
         <div class="form-container">
             <h2>PLAATS EEN NIEUWE OPROEP</h2>
             <form id="vervoer-form">
@@ -77,6 +184,18 @@
             </div>
         </div>
     </div>
+
     <script src="script.js?v=42"></script>
+    <script>
+        // Script voor de FAQ knop
+        document.getElementById('faq-toggle-button').addEventListener('click', function() {
+            var faqWrapper = document.getElementById('faq-wrapper');
+            if (faqWrapper.classList.contains('hidden')) {
+                faqWrapper.classList.remove('hidden');
+            } else {
+                faqWrapper.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
