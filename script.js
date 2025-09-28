@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function renderAlleRitten() {
-        rittenLijstContainer.innerHTML = '<p>Ritten worden geladen...</p>';
         try {
             const response = await fetch(`${GOOGLE_SHEET_URL}&timestamp=${new Date().getTime()}`);
             if (!response.ok) throw new Error('Kon de data niet ophalen uit de spreadsheet.');
