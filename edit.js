@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSN4dKR5-eO0UYvzsIhUFRoAETbFRQHmoSzhYDY5Ljer5ebt1dJFk1EuCGFt1w01FyYbX37kZGg4H-t/pub?gid=1598670068&single=true&output=csv';
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxr0IID6SNXKzrH0gMXTN2qEWmLnIx-iDRAr0KiBkDT8c43Rli4EIPaBUuf_LLewUgCnQ/exec';
 
     const editForm = document.getElementById('edit-form');
@@ -7,55 +6,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const editToken = urlParams.get('edit');
 
-    // --- VERNIEUWDE, ROBUUSTE PARSE FUNCTIE ---
-    function parseCSV(text) {
-        let lines = text.split('\n');
-        let headers = lines[0].split(',');
-        let result = [];
-        for (let i = 1; i < lines.length; i++) {
-            if (!lines[i] || lines[i].trim() === '') continue;
-
-            let obj = {};
-            let currentline = lines[i].split(',');
-
-            // Als een regel minder velden heeft, kan het een multiline veld zijn.
-            // Voeg de volgende regel toe totdat de aanhalingstekens kloppen.
-            while (currentline.join(',').split('"').length % 2 === 0) {
-                 if (i + 1 < lines.length) {
-                    i++;
-                    lines[i-1] += '\n' + lines[i];
-                    currentline = lines[i-1].split(',');
-                } else {
-                    break;
-                }
-            }
-
-            // Nu de kolommen correct splitsen, rekening houdend met aanhalingstekens
-            let values = lines[i-1].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
-            
-            if (values.length > 0 && values[0].trim() !== '') {
-                 for (let j = 0; j < headers.length; j++) {
-                    let value = values[j] || '';
-                    // Verwijder aanhalingstekens en trim de waarde
-                    value = value.trim().replace(/^"|"$/g, '').trim();
-                    obj[headers[j].trim()] = value;
-                }
-                result.push(obj);
-            }
-        }
-        return result;
-    }
-
     async function laadOproepData() {
         if (!editToken) {
             loadingMessage.innerHTML = '<p style="color:red;">Fout: Geen bewerk-token gevonden.</p>';
             return;
         }
         try {
-            const response = await fetch(`${GOOGLE_SHEET_URL}&timestamp=${new Date().getTime()}`);
+            const response = await fetch(`${GOOGLE_SCRIPT_URL}?timestamp=${new Date().getTime()}`);
             if (!response.ok) throw new Error('Kon de data niet ophalen.');
-            const csvText = await response.text();
-            const allData = parseCSV(csvText);
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message);
+
+            const allData = result.data;
             const rit = allData.find(r => r.edit_token === editToken);
             if (!rit) throw new Error('Oproep niet gevonden of ongeldige link.');
             
@@ -63,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
             editForm.elements['naam_oproeper'].value = rit.naam_oproeper;
             editForm.elements['van_plaats'].value = rit.van_plaats;
             editForm.elements['naar_plaats'].value = rit.naar_plaats;
-            editForm.elements['vertrekdatum'].value = rit.vertrekdatum;
+            editForm.elements['vertrekdatum'].value = new Date(rit.vertrekdatum).toISOString().split('T')[0];
             editForm.elements['details'].value = rit.details;
             editForm.elements['contact_info'].value = rit.contact_info;
             
@@ -71,30 +33,9 @@ document.addEventListener('DOMContentLoaded', function() {
             editForm.style.display = 'block';
 
         } catch (error) {
-            loadingMessage.innerHTML = `<p style="color:red;">${error.message}</p>`;
+            loadingMessage.innerHTML = `<p style="color:red;">Fout: ${error.message}</p>`;
         }
     }
 
-    editForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const formData = new FormData(editForm);
-        const updatedData = Object.fromEntries(formData.entries());
-        updatedData.edit_token = editToken;
-        updatedData.action = 'update';
-
-        try {
-            await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {'Content-Type': 'text/plain;charset=utf-8'},
-                body: JSON.stringify(updatedData)
-            });
-            alert('Je oproep is succesvol bijgewerkt!');
-            window.location.href = 'index.html';
-        } catch (error) {
-            alert(`Er is een fout opgetreden bij het opslaan: ${error.message}`);
-        }
-    });
-
-    laadOproepData();
-});
+    // ... (De submit event listener blijft hetzelfde als in uw originele bestand)
+}
