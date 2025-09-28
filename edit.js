@@ -7,17 +7,43 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const editToken = urlParams.get('edit');
 
+    // --- VERNIEUWDE, ROBUUSTE PARSE FUNCTIE ---
     function parseCSV(text) {
-        const rows = text.trim().split(/\r?\n/);
-        const headers = rows[0].split(',');
-        return rows.slice(1).filter(row => row && row.split(',')[0].trim() !== '').map(row => {
-            const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
-            return headers.reduce((object, header, index) => {
-                const value = values[index] ? values[index].replace(/^"|"$/g, '') : '';
-                object[header.trim()] = value.trim();
-                return object;
-            }, {});
-        });
+        let lines = text.split('\n');
+        let headers = lines[0].split(',');
+        let result = [];
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i] || lines[i].trim() === '') continue;
+
+            let obj = {};
+            let currentline = lines[i].split(',');
+
+            // Als een regel minder velden heeft, kan het een multiline veld zijn.
+            // Voeg de volgende regel toe totdat de aanhalingstekens kloppen.
+            while (currentline.join(',').split('"').length % 2 === 0) {
+                 if (i + 1 < lines.length) {
+                    i++;
+                    lines[i-1] += '\n' + lines[i];
+                    currentline = lines[i-1].split(',');
+                } else {
+                    break;
+                }
+            }
+
+            // Nu de kolommen correct splitsen, rekening houdend met aanhalingstekens
+            let values = lines[i-1].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+            
+            if (values.length > 0 && values[0].trim() !== '') {
+                 for (let j = 0; j < headers.length; j++) {
+                    let value = values[j] || '';
+                    // Verwijder aanhalingstekens en trim de waarde
+                    value = value.trim().replace(/^"|"$/g, '').trim();
+                    obj[headers[j].trim()] = value;
+                }
+                result.push(obj);
+            }
+        }
+        return result;
     }
 
     async function laadOproepData() {

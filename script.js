@@ -8,17 +8,43 @@ document.addEventListener('DOMContentLoaded', function() {
     const successModal = document.getElementById('success-modal');
     const hoofdTitel = document.querySelector('h2#hoofdTitel');
 
+    // --- VERNIEUWDE, ROBUUSTE PARSE FUNCTIE ---
     function parseCSV(text) {
-        const rows = text.trim().split(/\r?\n/);
-        const headers = rows[0].split(',');
-        return rows.slice(1).filter(row => row && row.split(',')[0].trim() !== '').map(row => {
-            const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
-            return headers.reduce((object, header, index) => {
-                const value = values[index] ? values[index].replace(/^"|"$/g, '') : '';
-                object[header.trim()] = value.trim();
-                return object;
-            }, {});
-        });
+        let lines = text.split('\n');
+        let headers = lines[0].split(',');
+        let result = [];
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i] || lines[i].trim() === '') continue;
+
+            let obj = {};
+            let currentline = lines[i].split(',');
+
+            // Als een regel minder velden heeft, kan het een multiline veld zijn.
+            // Voeg de volgende regel toe totdat de aanhalingstekens kloppen.
+            while (currentline.join(',').split('"').length % 2 === 0) {
+                 if (i + 1 < lines.length) {
+                    i++;
+                    lines[i-1] += '\n' + lines[i];
+                    currentline = lines[i-1].split(',');
+                } else {
+                    break;
+                }
+            }
+
+            // Nu de kolommen correct splitsen, rekening houdend met aanhalingstekens
+            let values = lines[i-1].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+            
+            if (values.length > 0 && values[0].trim() !== '') {
+                 for (let j = 0; j < headers.length; j++) {
+                    let value = values[j] || '';
+                    // Verwijder aanhalingstekens en trim de waarde
+                    value = value.trim().replace(/^"|"$/g, '').trim();
+                    obj[headers[j].trim()] = value;
+                }
+                result.push(obj);
+            }
+        }
+        return result;
     }
 
     async function laadPagina() {
@@ -32,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function renderAlleRitten() {
+        rittenLijstContainer.innerHTML = '<p>Ritten worden geladen...</p>';
         try {
             const response = await fetch(`${GOOGLE_SHEET_URL}&timestamp=${new Date().getTime()}`);
             if (!response.ok) throw new Error('Kon de data niet ophalen uit de spreadsheet.');
@@ -74,7 +101,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const ritDiv = document.createElement('div');
                 ritDiv.className = 'rit-item';
                 const vertrekDatum = new Date(rit.vertrekdatum).toLocaleDateString('nl-NL');
-                ritDiv.innerHTML = `<h5>${rit.van_plaats} &rarr; ${rit.naar_plaats}</h5><p><strong>Door:</strong> ${rit.naam_oproeper || 'Onbekend'}</p><p><strong>Datum:</strong> ${vertrekDatum}</p><p><strong>Details:</strong> ${rit.details || 'Geen'}</p><p><strong>Contact:</strong> <a href="mailto:${rit.contact_info}">${rit.contact_info}</a></p>`;
+                const detailsHTML = rit.details ? rit.details.replace(/\n/g, '<br>') : 'Geen';
+                ritDiv.innerHTML = `<h5>${rit.van_plaats} &rarr; ${rit.naar_plaats}</h5><p><strong>Door:</strong> ${rit.naam_oproeper || 'Onbekend'}</p><p><strong>Datum:</strong> ${vertrekDatum}</p><p><strong>Details:</strong> ${detailsHTML}</p><p><strong>Contact:</strong> <a href="mailto:${rit.contact_info}">${rit.contact_info}</a></p>`;
                 container.appendChild(ritDiv);
             });
         }
@@ -97,13 +125,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const vertrekDatum = new Date(rit.vertrekdatum).toLocaleDateString('nl-NL');
             const editUrl = `edit.html?edit=${rit.edit_token}`;
+            const detailsHTML = rit.details ? rit.details.replace(/\n/g, '<br>') : 'Geen';
             
             const beheerDiv = document.createElement('div');
             beheerDiv.className = 'rit-item beheer-item';
             beheerDiv.innerHTML = `
                 <h4>${rit.van_plaats} &rarr; ${rit.naar_plaats}</h4>
                 <p><strong>Door:</strong> ${rit.naam_oproeper}</p><p><strong>Datum:</strong> ${vertrekDatum}</p>
-                <p><strong>Details:</strong> ${rit.details}</p><p><strong>Contact:</strong> <a href="mailto:${rit.contact_info}">${rit.contact_info}</a></p>
+                <p><strong>Details:</strong> ${detailsHTML}</p><p><strong>Contact:</strong> <a href="mailto:${rit.contact_info}">${rit.contact_info}</a></p>
                 <hr>
                 <div class="beheer-knoppen">
                     <a href="${editUrl}" class="edit-button">Pas oproep aan</a>
