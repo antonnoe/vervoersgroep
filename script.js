@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- DEZE URL IS NU 100% CORRECT ---
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1bATQlNIu7vTY1VFIX98zfznYk86vZ2C3WUo2-CcazWdzPOquahzgCmBJKBUwnpOFKw/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9ux-idfN2v9FLjnlwc3bIVwINwW3O8vvLDbzP__HUDpITBW_Itpldnp0vRWyKo3JQSg/exec';
     const ZAPIER_INSERT_WEBHOOK = 'https://hooks.zapier.com/hooks/catch/624843/u11gttx/';
 
     const rittenLijstContainer = document.getElementById('ritten-lijst');
@@ -184,4 +184,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     laadPagina();
+
 });
