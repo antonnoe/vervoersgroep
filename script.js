@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // --- DEZE URL IS NU 100% CORRECT ---
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9ux-idfN2v9FLjnlwc3bIVwINwW3O8vvLDbzP__HUDpITBW_Itpldnp0vRWyKo3JQSg/exec';
+    // --- DEZE URL IS NU AANGEPAST NAAR DE JUISTE VERSIE ---
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxr0IID6SNXKzrH0gMXTN2qEWmLnIx-iDRAr0KiBkDT8c43Rli4EIPaBUuf_LLewUgCnQ/exec';
     const ZAPIER_INSERT_WEBHOOK = 'https://hooks.zapier.com/hooks/catch/624843/u11gttx/';
 
     const rittenLijstContainer = document.getElementById('ritten-lijst');
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function renderAlleRitten() {
-        // We verbergen de rittenlijst container initieel en tonen deze pas na succesvol laden
+        // We verbergen de rittenlijst container initieel
         rittenLijstContainer.style.display = 'none';
         const laadMelding = document.createElement('p');
         laadMelding.textContent = 'Ritten worden geladen...';
@@ -184,5 +184,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     laadPagina();
-
 });
