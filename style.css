@@ -1,4 +1,4 @@
-/* --- Fonts Importeren (Huisstijl) --- */
+/* --- Fonts Importeren (Huisstijl: Poppins & Mulish) --- */
 @import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;600&family=Poppins:wght@600;700&display=swap');
 
 /* --- Algemene Stijlen --- */
@@ -20,7 +20,7 @@ body {
 hr {
     border: none;
     border-top: 1px solid #ddd;
-    margin: 50px 0; /* Iets meer ruimte */
+    margin: 50px 0;
 }
 
 h2, h3, h4, h5 {
@@ -36,7 +36,7 @@ h2 {
 /* --- Formulier Opmaak --- */
 .form-container {
     background-color: #ffffff;
-    padding: 40px; /* Ruimer opgezet */
+    padding: 40px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
@@ -53,7 +53,7 @@ label {
     margin-bottom: 8px;
     font-weight: 600;
     font-size: 0.95em;
-    color: #800000; /* Subtiel accent */
+    color: #800000;
 }
 
 input[type="text"],
@@ -62,7 +62,7 @@ input[type="email"],
 select,
 textarea {
     width: 100%;
-    padding: 14px; /* Iets groter klikvlak */
+    padding: 14px;
     margin-bottom: 25px;
     border: 1px solid #ccc;
     border-radius: 6px;
@@ -90,7 +90,7 @@ textarea {
 .form-row {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Meer ruimte tussen kolommen */
+    gap: 20px;
 }
 
 .form-group {
@@ -113,24 +113,40 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-    background-color: #600000; /* Iets donkerder bij hover */
+    background-color: #600000;
 }
 
-/* Radio buttons styling */
+/* --- Radio Buttons Styling (Grid Layout) --- */
 .radio-group-buttons {
     border: none;
     padding: 0;
     margin-bottom: 30px;
-    display: flex;
-    flex-wrap: wrap;
+    
+    /* Grid instellingen */
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Mobiel: 2 kolommen (2 aan 2) */
     gap: 15px;
 }
 
 .radio-group-buttons legend {
+    grid-column: 1 / -1; /* Titel over de volledige breedte */
     font-weight: 600;
     width: 100%;
     margin-bottom: 10px;
     font-size: 1em;
+}
+
+/* Zorg dat de label div correct werkt in de grid */
+.radio-group-buttons div {
+    display: contents; /* Laat de grid direct op de labels werken indien nodig, of gebruik flex in de div */
+}
+
+/* Omdat de HTML structuur <div><input><label></div> is, moeten we de div als grid-item stylen of de div negeren via display:contents. 
+   Hieronder de veiligste optie voor jouw structuur: */
+
+.radio-group-buttons > div {
+    display: flex;
+    width: 100%;
 }
 
 .radio-group-buttons input[type="radio"] {
@@ -138,14 +154,20 @@ button[type="submit"]:hover {
 }
 
 .radio-group-buttons label {
-    flex-grow: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    padding: 14px;
+    padding: 12px 5px;
     border: 1px solid #ccc;
     border-radius: 6px;
     cursor: pointer;
     background-color: #fff;
     transition: all 0.2s;
+    font-size: 0.9em;
+    line-height: 1.3;
+    height: 100%; /* Zorg dat ze even hoog zijn */
 }
 
 .radio-group-buttons input[type="radio"]:checked + label {
@@ -155,7 +177,7 @@ button[type="submit"]:hover {
     box-shadow: 0 2px 5px rgba(128,0,0,0.3);
 }
 
-/* --- Navigatieknoppen --- */
+/* --- Navigatieknoppen (Ankers) --- */
 .nav-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -184,7 +206,7 @@ button[type="submit"]:hover {
 /* --- Rit Weergave --- */
 .full-width-titel {
     text-align: center;
-    font-size: 1.6em; /* Iets subtieler */
+    font-size: 1.6em;
     font-weight: 600;
     color: #800000;
     background-color: #fff8e1; /* Zacht geel accent */
@@ -197,7 +219,7 @@ button[type="submit"]:hover {
 .category-container {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 30px; /* Meer witruimte */
+    gap: 30px;
 }
 
 .category-column h4 {
@@ -210,7 +232,7 @@ button[type="submit"]:hover {
     background-color: #ffffff;
     border: 1px solid #eee;
     border-left: 5px solid #800000;
-    padding: 25px; /* Ruimer */
+    padding: 25px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     margin-bottom: 20px;
@@ -234,7 +256,7 @@ button[type="submit"]:hover {
     color: #444;
 }
 
-/* Specifieke styling voor Lees Meer link */
+/* Specifieke styling voor 'Lees Meer' link */
 .rit-item a[href^="javascript"] {
     display: inline-block;
     margin-top: 5px;
@@ -311,7 +333,7 @@ button[type="submit"]:hover {
     color: white;
 }
 
-/* Media query voor grotere schermen */
+/* --- Media Queries (Desktop aanpassingen) --- */
 @media (min-width: 768px) {
     .category-container {
         grid-template-columns: 1fr 1fr;
@@ -320,7 +342,19 @@ button[type="submit"]:hover {
         flex-direction: row;
         gap: 30px;
     }
+    
+    /* Navigatie knoppen 4 naast elkaar */
     .nav-buttons {
-        grid-template-columns: repeat(4, 1fr); /* Alle 4 naast elkaar op desktop */
+        grid-template-columns: repeat(4, 1fr); 
+    }
+
+    /* Radio knoppen formulier: 4 naast elkaar op desktop */
+    .radio-group-buttons {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .radio-group-buttons label {
+        font-size: 1em;
+        padding: 14px;
     }
 }
