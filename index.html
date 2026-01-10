@@ -73,7 +73,7 @@
 
         <div class="faq-section">
             <button id="faq-toggle-button">Toon/Verberg FAQ's</button>
-    
+     
             <div id="faq-wrapper" class="faq-container hidden">
                 <h2>Veelgestelde Vragen (FAQ)</h2>
                 <details>
@@ -96,19 +96,15 @@
                 </details>
                 <details>
                     <summary>Ik heb een oproep geplaatst, wat gebeurt er nu?</summary>
-                    <p>Direct na het plaatsen ontvangt u een automatische e-mail op het opgegeven adres. Deze e-mail bevat een <strong>unieke en persoonlijke link</strong> waarmee u later uw oproep kunt aanpassen of verwijderen. Bewaar deze e-mail dus goed!</p>
+                    <p>Uw oproep wordt direct op de lijst geplaatst en is zichtbaar voor alle bezoekers. Omdat we overgestapt zijn op een vereenvoudigd systeem (Fire & Forget), ontvangt u <strong>geen</strong> beheer-mail meer. De oproep staat vast.</p>
                 </details>
                 <details>
                     <summary>Hoe kan ik mijn oproep aanpassen of verwijderen?</summary>
-                    <p>Gebruik de persoonlijke beheerlink uit de e-mail die u heeft ontvangen. Als u op deze link klikt, komt u op een speciale pagina waar u uw oproep kunt inzien en de opties krijgt om deze aan te passen of definitief te verwijderen.</p>
+                    <p>Om technische storingen definitief uit te sluiten, is het <strong>niet meer mogelijk</strong> om een geplaatste oproep te wijzigen of handmatig te verwijderen. Controleer vooraf of uw tekst en contactgegevens kloppen. In noodgevallen kunt u een nieuwe oproep plaatsen met de juiste info, maar de oude blijft helaas zichtbaar tot de automatische verloopdatum.</p>
                 </details>
                 <details>
                     <summary>Hoe lang blijft mijn oproep zichtbaar?</summary>
-                    <p>Uw oproep blijft zichtbaar tot <strong>3 dagen na de opgegeven vertrekdatum</strong>. Oudere oproepen worden automatisch verborgen om de lijst relevant en actueel te houden.</p>
-                </details>
-                <details>
-                    <summary>Ik heb mijn oproep verwijderd, maar ik zie hem nog steeds. Wat nu?</summary>
-                    <p>Dit wordt vrijwel altijd veroorzaakt door het geheugen (de "cache") van uw browser. De oproep is op de server al wel verwijderd. Voer een <strong>harde refresh</strong> uit om de pagina te dwingen de allernieuwste versie te laden. Dit doet u met `Ctrl+Shift+R` (op Windows) of `Cmd+Shift+R` (op een Mac). De oproep zal dan verdwenen zijn.</p>
+                    <p>Uw oproep blijft zichtbaar tot <strong>3 dagen na de opgegeven vertrekdatum</strong>. Daarna wordt deze door het systeem automatisch verwijderd. U hoeft (en kunt) dit dus niet zelf doen.</p>
                 </details>
                 <details>
                     <summary>Is mijn e-mailadres zichtbaar voor iedereen?</summary>
@@ -177,7 +173,7 @@
     <div id="success-modal" class="modal">
         <div class="modal-content">
             <h3>Moderator Nederlanders.fr meldt het volgende</h3>
-            <p id="modal-text"></p>
+            <div id="modal-text"></div>
             <div class="modal-buttons">
                 <button id="modal-ok-button">OK</button>
                 <button id="modal-new-button">Plaats nog een oproep</button>
@@ -185,7 +181,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=42"></script>
+    <script src="script.js?v=43"></script>
     <script>
         // Script voor de FAQ knop
         document.getElementById('faq-toggle-button').addEventListener('click', function() {
