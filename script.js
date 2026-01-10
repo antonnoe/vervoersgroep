@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // --- CONFIGURATIE ---
     // We gebruiken nu GEEN Zapier meer. Alles gaat direct naar Google.
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxr0IID6SNXKzrH0gMXTN2qEWmLnIx-iDRAr0KiBkDT8c43Rli4EIPaBUuf_LLewUgCnQ/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycQLoscubb5d8oLjpQy2EAYB8p0ZTr0xc5U3eT7YRV5t88hy4-j0FwGehNdIUPUnyp_w/exec';
 
     const rittenLijstContainer = document.getElementById('ritten-lijst');
     const vervoerForm = document.getElementById('vervoer-form');
@@ -207,3 +207,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     laadPagina();
 });
+
