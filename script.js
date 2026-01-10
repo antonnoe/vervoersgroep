@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // --- DEZE URL IS NU AANGEPAST NAAR DE JUISTE VERSIE ---
+    
+    // --- CONFIGURATIE ---
+    // We gebruiken nu GEEN Zapier meer. Alles gaat direct naar Google.
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxr0IID6SNXKzrH0gMXTN2qEWmLnIx-iDRAr0KiBkDT8c43Rli4EIPaBUuf_LLewUgCnQ/exec';
-    const ZAPIER_INSERT_WEBHOOK = 'https://hooks.zapier.com/hooks/catch/624843/u11gttx/';
 
     const rittenLijstContainer = document.getElementById('ritten-lijst');
     const vervoerForm = document.getElementById('vervoer-form');
@@ -19,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function renderAlleRitten() {
-        // We verbergen de rittenlijst container initieel
         rittenLijstContainer.style.display = 'none';
         const laadMelding = document.createElement('p');
         laadMelding.textContent = 'Ritten worden geladen...';
@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', function() {
             renderGroep(groepen.vraag_transport, document.getElementById('vraag_transport_list'));
             renderGroep(groepen.aanbod_transport, document.getElementById('aanbod_transport_list'));
             
-            // Toon de rittenlijst en verberg de laadmelding
             laadMelding.style.display = 'none';
             rittenLijstContainer.style.display = 'block';
 
@@ -82,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function renderBeheerWeergave(editToken) {
+        // ... (Code voor beheerweergave blijft ongewijzigd maar zit hieronder voor compleetheid) ...
         const laadMelding = document.createElement('p');
         laadMelding.textContent = 'Oproep wordt geladen...';
         rittenLijstContainer.parentElement.insertBefore(laadMelding, rittenLijstContainer);
@@ -127,17 +127,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // --- FORMULIER VERZENDEN (NU ZONDER ZAPIER) ---
     vervoerForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const formData = new FormData(vervoerForm);
         const ritData = Object.fromEntries(formData.entries());
+        
+        // Genereer ID's
         ritData.id = new Date().getTime().toString();
         ritData.created_at = new Date().toISOString();
         ritData.edit_token = crypto.randomUUID();
+        ritData.action = 'insert'; // Vertel Google Script dat dit een nieuwe rit is
+
         try {
-            const response = await fetch(ZAPIER_INSERT_WEBHOOK, { method: 'POST', body: JSON.stringify(ritData) });
-            if (!response.ok) throw new Error('Er is een fout opgetreden bij het versturen van de data.');
-            document.getElementById('modal-text').textContent = "Je oproep is geplaatst! Een e-mail met een link om je oproep te beheren is onderweg naar je toe gestuurd.";
+            // We sturen dit nu direct naar Google Apps Script (POST)
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(ritData)
+            });
+            
+            // Omdat Google redirects gebruikt, checken we de response tekst
+            const resultText = await response.text(); 
+            // Probeer te parsen, Google kan soms HTML teruggeven bij fouten
+            let result;
+            try {
+                 result = JSON.parse(resultText);
+            } catch(e) {
+                 console.log("Ruwe response:", resultText);
+                 // Als het geen JSON is, gaan we ervan uit dat het goed ging (Google 'echo' quirk)
+                 // of we checken response.ok
+            }
+
+            if (!response.ok) throw new Error('Er is een fout opgetreden bij het versturen.');
+            
+            document.getElementById('modal-text').textContent = "Je oproep is geplaatst! Bewaar de link naar deze pagina goed als je hem later wilt wijzigen.";
             successModal.style.display = 'block';
             vervoerForm.reset();
         } catch (error) {
@@ -154,7 +177,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const editToken = button.dataset.token;
             if (confirm('Weet je zeker dat je deze oproep definitief wilt verwijderen?')) {
                 try {
-                    // Gebruik nu een POST request naar dezelfde script URL
                     const response = await fetch(GOOGLE_SCRIPT_URL, {
                         method: 'POST',
                         body: JSON.stringify({ edit_token: editToken, action: 'delete' })
