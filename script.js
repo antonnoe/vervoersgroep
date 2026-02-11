@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // --- CONFIGURATIE ---
     // Google Apps Script URL
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycQLoscubb5d8oLjpQy2EAYB8p0ZTr0xc5U3eT7YRV5t88hy4-j0FwGehNdIUPUnyp_w/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZTLO8e3OQCC6iZBGXCYz8YVLBH23att20npzUiP3uTsDZrq8zc3Xs8hZ9lR3BqNrU7g/exec';
 
     const rittenLijstContainer = document.getElementById('ritten-lijst');
     const vervoerForm = document.getElementById('vervoer-form');
@@ -190,3 +190,4 @@ document.addEventListener('DOMContentLoaded', function() {
         vervoerForm.scrollIntoView({ behavior: 'smooth' });
     });
 });
+
