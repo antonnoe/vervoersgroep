@@ -315,10 +315,10 @@ detecteert u een uitval van de Google-laag, niet slechts van de HTML-pagina.
 
 ## 5. Waar komt de traagheid vandaan?
 
-**Onderbouwing vooraf:** hieronder staat geen enkel meetgetal, om de reden in
-hoofdstuk 2. Alle onderbouwing is statisch en met regelnummers na te lopen in
-de code. Waar een meting het beeld zou moeten bevestigen, staat dat er expliciet
-bij.
+**Onderbouwing vooraf:** oorzaak 1 is inmiddels **gemeten** tegen de live
+backend (zie 2.0). Oorzaak 2 en 3 rusten nog uitsluitend op code: statisch, met
+regelnummers na te lopen. Waar een meting het beeld nog moet bevestigen, staat
+dat er expliciet bij. Hoofdstuk 6 zet per bevinding op welke grond hij rust.
 
 ### Oorzaak 1 — Elke pageview trekt de complete sheet over de lijn, ongefilterd en ongecached
 
@@ -457,14 +457,17 @@ Vier soorten grond, van sterk naar zwak:
 | 6 | Elk verzoek neemt de script-lock, ook een gewone GET | **B** | `Code.gs:14-15`; op 06-08-2026 ook in de live code teruggezien. Dat leesverkeer daardoor serialiseert bij gelijktijdig bezoek is **D** — niet gemeten |
 | 7 | Er is geen licht GET-endpoint; élk verzoek valt door naar de dump | **B** | Alleen `action === 'insert'` heeft een eigen tak; bevestigd in de live code op 06-08-2026 |
 | 8 | `"status":"success"` is bruikbaar als monitorkeyword | **B** | Volgt uit `JSON.stringify` in `responseJSON`; **niet** tegen de live respons gecontroleerd op exacte spatiëring |
-| 9 | Een kapotte backend geeft HTTP 200 met `"status":"error"` | **D** | Volgt uit de `catch`-tak in de kopie; niet uitgelokt, dus niet waargenomen |
-| 10 | `?action=status` gaat werken zoals beschreven | **D** | Code is geschreven, niet uitgevoerd. Pas te bevestigen ná uitrollen |
+| 9 | Een kapotte backend geeft HTTP 200 met `"status":"error"` | **D** | Volgt uit de `catch`-tak (op 06-08-2026 ook in de live code teruggezien); niet uitgelokt, dus niet waargenomen |
+| 10 | `?action=status` gaat werken zoals beschreven | **D+** | Code is uitgevoerd tegen *gesimuleerde* Apps Script-services (zie 6.1) en gaf `"check":"ok"` zonder de lock te nemen. Niet in de echte Apps Script-runtime gedraaid; pas hard te bevestigen ná uitrollen |
 | 11 | Er bestaat geen server-side `update`-route | **B** + **C** | Geen `update`-tak in de code — op 06-08-2026 ook in de live versie niet; `README.md` bevestigt dat het bewust zo is |
 | 12 | `edit.js` wijst naar een oudere implementatie-URL | **B** voor de URL zelf, **D** voor "ouder" | Dat `AKfycbx1…` een oudere implementatie is, is afgeleid, niet gecontroleerd |
 | 13 | De Supabase-SDK op `edit.html` wordt nul keer gebruikt | **B** | `grep -c -i supabase edit.js` = 0 |
 | 14 | Google Fonts via `@import` is een seriële render-blocking hop | **B** + **D** | De `@import` staat er (`style.css:2`); het watervalgedrag is standaard browsergedrag, hier niet gemeten |
 | 15 | De POST zonder `Content-Type` vermijdt een CORS-preflight | **D** | Standaardgedrag volgens de Fetch-specificatie; niet in een netwerkpaneel waargenomen |
-| 16 | De live Apps Script-code is gelijk aan `apps-script/Code.gs` | **GEVERIFIEERD, 06-08-2026** | Was het grootste voorbehoud, is het niet meer. Zie hieronder |
+| 16 | De live Apps Script-code is gelijk aan `apps-script/Code.gs` | **GEVERIFIEERD, 06-08-2026** | Was het grootste voorbehoud, is het niet meer. Zie het kader onder deze tabel |
+| 17 | Het v11-serverfilter is nooit strenger dan het clientfilter | **B**, getest | Differentieel getest over 19.468.674 combinaties, 0 overtredingen — zie 6.1. Sterkste onderbouwing in dit document na de metingen |
+| 18 | Het POST-pad is onveranderd door v11 | **B**, getest | De diff van v10 naar v11 raakt de `insert`-tak niet; uitgevoerd gaf hij dezelfde respons en schreef `edit_token` nog steeds in kolom 10 (6.1) |
+| 19 | v11 verwijdert niets uit de sheet | **B** | Er staat geen `deleteRow`, `deleteRows`, `clear` of `setValue` in het bestand; na een uitgevoerde GET was de gesimuleerde sheet onveranderd (6.1) |
 
 > **Bevinding 16 — opgeheven op 06-08-2026.** Dit was het voorbehoud dat alle
 > andere overstijgt: `apps-script/Code.gs` was een handmatig bijgehouden kopie
@@ -475,7 +478,8 @@ Vier soorten grond, van sterk naar zwak:
 > en punt voor punt tegen de zevenpunts-checklijst in `apps-script/README.md`
 > gelegd. **Alle zeven punten klopten.** Live draait v10, functioneel identiek
 > aan de referentiekopie van 20-07-2026; het enige verschil is trailing
-> whitespace. Er is sinds 20-07 dus niets rechtstreeks in de editor gewijzigd.
+> whitespace. Er is sinds 20-07 dus niets rechtstreeks in de editor gewijzigd,
+> en de v11-diff kan integraal geplakt worden.
 >
 > Gevolg voor dit hoofdstuk: de bevindingen die op de kopie rustten (6, 7, 11)
 > rusten nu op geverifieerde code met peildatum 06-08-2026. Wordt er later
@@ -483,10 +487,49 @@ Vier soorten grond, van sterk naar zwak:
 > die onzekerheid opnieuw te lopen — vandaar dat de checklijst blijft staan als
 > vaste procedure vóór elke volgende uitrol.
 >
-> Wat hiermee **niet** is aangetoond: het gedrag van v11 na uitrol. De
-> voorbehouden 10, en de vijf punten hieronder, blijven onverkort staan.
+> Wat hiermee **niet** is aangetoond: het gedrag van v11 ná uitrol. Bevinding
+> 10 en de vijf punten in 6.2 blijven onverkort staan.
 
-### Blijft vermoeden tot ná de uitrol van v11
+### 6.1 Hoe rij 17, 18 en 19 zijn getoetst
+
+De riskantste eigenschap van v11 is dat het serverfilter **nooit strenger** mag
+uitpakken dan het filter dat `script.js` al in de browser toepast — anders
+verdwijnen er zichtbare oproepen. Dat is niet op het oog vast te stellen, want
+de twee filters rekenen in verschillende tijdzones. Daarom is het differentieel
+getoetst, buiten Apps Script om:
+
+- `isActueleRit()` uit `apps-script/Code.gs` is naast een letterlijke kopie van
+  `script.js:37-43` gezet en op **19.468.674** combinaties vergeleken: elke
+  combinatie van 27 servertijdzones × 27 bezoekerstijdzones × 6 tijdstippen
+  (waaronder beide Europese zomertijdovergangen van 2026 en een
+  jaarwisseling) × ruim 4.400 vertrekdatums
+  van 1960 tot 2027, in vier vormen (Date-object, ISO-tekst, datum-only tekst,
+  onleesbare rommel), inclusief de JSON-heen-en-weer die er in werkelijkheid
+  tussen zit.
+- Getelde gevallen waarin de server een rij wegfiltert die de browser wél zou
+  tonen: **0**.
+- Controle dat die test niet leeg draait: met `MARGE_DAGEN` op `0` vindt
+  dezelfde test **726** overtredingen. De test detecteert dus precies de fout
+  die hij moet detecteren, en de marge is aantoonbaar nodig.
+
+Daarnaast zijn `doGet`, `doPost` en `statusCheck` uitgevoerd tegen gesimuleerde
+`SpreadsheetApp`-, `LockService`- en `ContentService`-objecten, met een sheet
+van 94 rijen met vertrekdatums van 1960 tot 2027:
+
+| Toets | Uitkomst |
+|---|---|
+| GET stuurt alleen actuele rijen | 14 van de 94 rijen, uitsluitend uit het lopende jaar |
+| Sheet na afloop | 94 rijen, ongewijzigd — niets verwijderd |
+| `?action=status` | `{"status":"success","check":"ok","sheet":"Oproepen","rows":94,…}` |
+| Lock bij de statusroute | niet genomen |
+| POST `insert` | `{"status":"success","message":"Oproep geplaatst"}`, rij toegevoegd, `edit_token` in kolom 10 |
+
+**Wat dit níét bewijst.** Het is de V8-engine van Node, niet de Apps
+Script-runtime, en het zijn nagebootste Google-objecten. Verschillen in hoe
+Apps Script celwaarden teruggeeft of tijdzones toepast, vallen hier buiten. Het
+bewijst de *logica* van het filter, niet het gedrag op Google's infrastructuur.
+
+### 6.2 Blijft vermoeden tot ná de uitrol van v11
 
 Deze vijf zijn met geen enkele hoeveelheid code lezen te beslechten; ze blijken
 pas als v11 daadwerkelijk draait. Controleer ze in die volgorde direct na het
@@ -494,11 +537,11 @@ implementeren.
 
 | Vermoeden | Grond | Hoe u het na de uitrol vaststelt |
 |---|---|---|
-| `?action=status` geeft daadwerkelijk `"check":"ok"` terug | **D** — code geschreven, nooit uitgevoerd | Roep `<exec-URL>?action=status` één keer aan met `curl -L` en kijk of het keyword letterlijk in de body staat, vóór u de monitor erop zet |
+| `?action=status` geeft daadwerkelijk `"check":"ok"` terug | **D+** — wél uitgevoerd, maar tegen nagebootste Google-objecten (6.1), niet in de Apps Script-runtime | Roep `<exec-URL>?action=status` één keer aan met `curl -L` en kijk of het keyword letterlijk in de body staat, vóór u de monitor erop zet |
 | De tijdzone van het Apps Script-project | **onbekend** — nergens uit af te leiden | Instellingen van het project, of het veld `served_at` in de statusrespons. De marge `MARGE_DAGEN = 2` in `Code.gs` vangt elk verschil op, dus dit is informatief, niet blokkerend |
 | Het datumformaat in kolom 7 van de sheet (echte `Date`-cel of tekst) | **onbekend** — de sheet is nooit ingezien | Kijk in de nieuwe GET-respons naar het veld `vertrekdatum`: een ISO-tijdstempel wijst op een `Date`-cel, kale tekst op een tekstkolom. `isActueleRit()` verwerkt beide |
 | Een redirect-hop naar `script.googleusercontent.com` | **D** — gebruikelijk bij Apps Script, hier niet waargenomen | `curl -L -o /dev/null -w '%{num_redirects}\n' <exec-URL>`. Is het aantal groter dan 0, controleer dan of UptimeRobot redirects volgt |
-| Hoeveel van de 92 rijen na filtering overblijven | **onbekend** — de meting van 2.0 splitst niet uit | Vergelijk de bytes van de nieuwe GET-respons met de 47.630 uit 2.0, en tel de rijen in de respons |
+| Hoeveel van de 92 rijen na filtering overblijven | **onbekend** — de meting van 2.0 splitst niet uit; de 14 van 94 uit 6.1 komen uit een verzonnen testsheet, niet uit uw sheet | Vergelijk de bytes van de nieuwe GET-respons met de 47.630 uit 2.0, en tel de rijen in de respons |
 
 ---
 
