@@ -2,7 +2,10 @@
 
 Datum audit: 6 augustus 2026
 Bijgewerkt: 6 augustus 2026 — metingen tegen de live backend toegevoegd
-(hoofdstuk 2), voorbehoud per bevinding toegevoegd (hoofdstuk 6).
+(hoofdstuk 2), voorbehoud per bevinding toegevoegd (hoofdstuk 6), en het
+voorbehoud over de live Apps Script-code opgeheven nadat die handmatig uit de
+Google-editor is gehaald en tegen de checklijst is gelegd (hoofdstuk 6,
+bevinding 16).
 Scope: `index.html`, `edit.html`, `script.js`, `edit.js` (plus `style.css` en
 `apps-script/Code.gs` waar die de aanroepen verklaren).
 Aan `index.html`, `edit.html`, `script.js`, `edit.js` en `style.css` is
@@ -435,9 +438,10 @@ Vier soorten grond, van sterk naar zwak:
 - **A — Gemeten tegen de live backend.** Hardste categorie. Bron staat erbij.
 - **B — Gelezen code.** Staat letterlijk in een bestand in deze repo. Voor
   `index.html`, `script.js`, `edit.html`, `edit.js` en `style.css` is dat
-  tegelijk de live code. Voor `apps-script/Code.gs` **niet**: dat is een
-  handmatige referentiekopie van 20-07-2026 en dus ongeverifieerd, zie de
-  waarschuwing onderaan dit hoofdstuk.
+  tegelijk de live code. Voor `apps-script/Code.gs` gold dat aanvankelijk niet
+  — dat is een handmatige referentiekopie — maar die kopie is op 06-08-2026
+  tegen de live code gelegd en bleek te kloppen (zie bevinding 16). Grond **B**
+  geldt daarmee ook voor `Code.gs`, met de peildatum 06-08-2026.
 - **C — README-tekst.** Berust op wat `apps-script/README.md` beweert, niet op
   code die is ingezien.
 - **D — Afgeleid gedrag.** Redenering over wat de code zal doen, zonder meting.
@@ -450,29 +454,51 @@ Vier soorten grond, van sterk naar zwak:
 | 3 | Contactgegevens van vrijwel elke inzender ooit zijn publiek opvraagbaar | **A** | 91 van 92 rijen met e-mailadres in de publieke response (2.0) |
 | 4 | Het datumfilter draait pas in de browser | **B** | `script.js:37-43`, live bestand |
 | 5 | De koude start domineert de responstijd | **A** | 44,9 s en 66,0 s koud tegen 1,9 s warm, zelfde payload (2.0) |
-| 6 | Elk verzoek neemt de script-lock, ook een gewone GET | **B**, kopie | `Code.gs:14-15` in de referentiekopie. Dat leesverkeer daardoor serialiseert bij gelijktijdig bezoek is **D** — niet gemeten |
-| 7 | Er is geen licht GET-endpoint; élk verzoek valt door naar de dump | **B**, kopie | Alleen `action === 'insert'` heeft een eigen tak in de kopie |
+| 6 | Elk verzoek neemt de script-lock, ook een gewone GET | **B** | `Code.gs:14-15`; op 06-08-2026 ook in de live code teruggezien. Dat leesverkeer daardoor serialiseert bij gelijktijdig bezoek is **D** — niet gemeten |
+| 7 | Er is geen licht GET-endpoint; élk verzoek valt door naar de dump | **B** | Alleen `action === 'insert'` heeft een eigen tak; bevestigd in de live code op 06-08-2026 |
 | 8 | `"status":"success"` is bruikbaar als monitorkeyword | **B** | Volgt uit `JSON.stringify` in `responseJSON`; **niet** tegen de live respons gecontroleerd op exacte spatiëring |
 | 9 | Een kapotte backend geeft HTTP 200 met `"status":"error"` | **D** | Volgt uit de `catch`-tak in de kopie; niet uitgelokt, dus niet waargenomen |
 | 10 | `?action=status` gaat werken zoals beschreven | **D** | Code is geschreven, niet uitgevoerd. Pas te bevestigen ná uitrollen |
-| 11 | Er bestaat geen server-side `update`-route | **B** + **C** | Geen `update`-tak in de kopie; `README.md` bevestigt dat het bewust zo is |
+| 11 | Er bestaat geen server-side `update`-route | **B** + **C** | Geen `update`-tak in de code — op 06-08-2026 ook in de live versie niet; `README.md` bevestigt dat het bewust zo is |
 | 12 | `edit.js` wijst naar een oudere implementatie-URL | **B** voor de URL zelf, **D** voor "ouder" | Dat `AKfycbx1…` een oudere implementatie is, is afgeleid, niet gecontroleerd |
 | 13 | De Supabase-SDK op `edit.html` wordt nul keer gebruikt | **B** | `grep -c -i supabase edit.js` = 0 |
 | 14 | Google Fonts via `@import` is een seriële render-blocking hop | **B** + **D** | De `@import` staat er (`style.css:2`); het watervalgedrag is standaard browsergedrag, hier niet gemeten |
 | 15 | De POST zonder `Content-Type` vermijdt een CORS-preflight | **D** | Standaardgedrag volgens de Fetch-specificatie; niet in een netwerkpaneel waargenomen |
-| 16 | De live Apps Script-code is gelijk aan `apps-script/Code.gs` | **C**, en zwak | **Dit is het grootste voorbehoud.** Zie hieronder |
+| 16 | De live Apps Script-code is gelijk aan `apps-script/Code.gs` | **GEVERIFIEERD, 06-08-2026** | Was het grootste voorbehoud, is het niet meer. Zie hieronder |
 
-> **Het voorbehoud dat alle andere overstijgt.** `apps-script/Code.gs` is een
-> handmatig bijgehouden kopie van 20-07-2026. `script.google.com` is vanuit
-> deze omgeving niet bereikbaar (HTTP 403), dus de live code is nooit ingezien.
-> Elke bevinding met grond **B, kopie** of **C** valt om zodra iemand na
-> 20-07-2026 rechtstreeks in de Apps Script-editor iets heeft gewijzigd zonder
-> dat hier te spiegelen. De metingen uit 2.0 zijn daar ongevoelig voor: die
-> komen van de draaiende backend zelf. Ze bevestigen ook dat de kopie op de
-> twee belangrijkste punten (geen datumfilter, geen opschoning) nog steeds met
-> de werkelijkheid overeenkomt. Dat is geen bewijs dat de rest ongewijzigd is.
-> Loop daarom vóór het plakken de verschil-checklijst na die bij de v11-wijziging
-> is geleverd.
+> **Bevinding 16 — opgeheven op 06-08-2026.** Dit was het voorbehoud dat alle
+> andere overstijgt: `apps-script/Code.gs` was een handmatig bijgehouden kopie
+> van 20-07-2026, en `script.google.com` was vanuit de auditomgeving niet
+> bereikbaar (HTTP 403), dus de live code was nooit ingezien.
+>
+> Op 06-08-2026 is de live `Code.gs` handmatig uit de Google-editor gekopieerd
+> en punt voor punt tegen de zevenpunts-checklijst in `apps-script/README.md`
+> gelegd. **Alle zeven punten klopten.** Live draait v10, functioneel identiek
+> aan de referentiekopie van 20-07-2026; het enige verschil is trailing
+> whitespace. Er is sinds 20-07 dus niets rechtstreeks in de editor gewijzigd.
+>
+> Gevolg voor dit hoofdstuk: de bevindingen die op de kopie rustten (6, 7, 11)
+> rusten nu op geverifieerde code met peildatum 06-08-2026. Wordt er later
+> rechtstreeks in de editor gewerkt zonder dat hier te spiegelen, dan begint
+> die onzekerheid opnieuw te lopen — vandaar dat de checklijst blijft staan als
+> vaste procedure vóór elke volgende uitrol.
+>
+> Wat hiermee **niet** is aangetoond: het gedrag van v11 na uitrol. De
+> voorbehouden 10, en de vijf punten hieronder, blijven onverkort staan.
+
+### Blijft vermoeden tot ná de uitrol van v11
+
+Deze vijf zijn met geen enkele hoeveelheid code lezen te beslechten; ze blijken
+pas als v11 daadwerkelijk draait. Controleer ze in die volgorde direct na het
+implementeren.
+
+| Vermoeden | Grond | Hoe u het na de uitrol vaststelt |
+|---|---|---|
+| `?action=status` geeft daadwerkelijk `"check":"ok"` terug | **D** — code geschreven, nooit uitgevoerd | Roep `<exec-URL>?action=status` één keer aan met `curl -L` en kijk of het keyword letterlijk in de body staat, vóór u de monitor erop zet |
+| De tijdzone van het Apps Script-project | **onbekend** — nergens uit af te leiden | Instellingen van het project, of het veld `served_at` in de statusrespons. De marge `MARGE_DAGEN = 2` in `Code.gs` vangt elk verschil op, dus dit is informatief, niet blokkerend |
+| Het datumformaat in kolom 7 van de sheet (echte `Date`-cel of tekst) | **onbekend** — de sheet is nooit ingezien | Kijk in de nieuwe GET-respons naar het veld `vertrekdatum`: een ISO-tijdstempel wijst op een `Date`-cel, kale tekst op een tekstkolom. `isActueleRit()` verwerkt beide |
+| Een redirect-hop naar `script.googleusercontent.com` | **D** — gebruikelijk bij Apps Script, hier niet waargenomen | `curl -L -o /dev/null -w '%{num_redirects}\n' <exec-URL>`. Is het aantal groter dan 0, controleer dan of UptimeRobot redirects volgt |
+| Hoeveel van de 92 rijen na filtering overblijven | **onbekend** — de meting van 2.0 splitst niet uit | Vergelijk de bytes van de nieuwe GET-respons met de 47.630 uit 2.0, en tel de rijen in de respons |
 
 ---
 
