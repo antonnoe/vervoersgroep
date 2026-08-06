@@ -1,19 +1,24 @@
 # Monitoring en performance-audit — Lift- en transportcentrale
 
 Datum audit: 6 augustus 2026
+Bijgewerkt: 6 augustus 2026 — metingen tegen de live backend toegevoegd
+(hoofdstuk 2), voorbehoud per bevinding toegevoegd (hoofdstuk 6).
 Scope: `index.html`, `edit.html`, `script.js`, `edit.js` (plus `style.css` en
 `apps-script/Code.gs` waar die de aanroepen verklaren).
-Aan de live bestanden is **niets gewijzigd**. Dit document is het enige nieuwe bestand.
+Aan `index.html`, `edit.html`, `script.js`, `edit.js` en `style.css` is
+**niets gewijzigd**.
 
-> **Belangrijk vooraf — de metingen uit punt 2 zijn NIET uitgevoerd.**
+> **Belangrijk vooraf — wie heeft wat gemeten.**
 > De omgeving waarin deze audit draaide, staat geen uitgaand verkeer toe naar
 > `script.google.com`, `script.googleusercontent.com`, `cdn.jsdelivr.net`,
 > `fonts.googleapis.com` en `www.nederlanders.fr`. Elke poging kreeg
 > `CONNECT tunnel failed, response 403` van de egress-proxy. Er staan daarom
-> **geen verzonnen responstijden, statuscodes of payloadgroottes** in dit
-> document. In hoofdstuk 2 staat een kant-en-klaar meetscript waarmee u de
-> tabel zelf in één minuut vult. Alles in hoofdstuk 1, 3, 4 en 5 komt
-> letterlijk uit de code en is wél verifieerbaar.
+> **geen door de audit verzonnen responstijden, statuscodes of
+> payloadgroottes** in dit document.
+> De opdrachtgever heeft het hoofdendpoint inmiddels zelf vanaf een normale
+> internetverbinding aangeroepen. Die cijfers staan in hoofdstuk 2 en zijn als
+> zodanig gelabeld. Alles in hoofdstuk 1, 3, 4 en 5 komt uit de code; hoofdstuk
+> 6 zegt per bevinding waar hij precies op rust.
 
 ---
 
@@ -63,9 +68,50 @@ Deze wijzigen niets aan de opdracht, maar u wilt ze weten:
 
 ---
 
-## 2. Metingen per GET-endpoint — NIET UITGEVOERD
+## 2. Metingen per GET-endpoint
 
-### 2.1 Waarom niet
+### 2.0 Wél gemeten: het hoofdendpoint, tegen de live backend
+
+**Bron: meting door de opdrachtgever, 6 augustus 2026, drie aanroepen van de
+`/exec`-URL uit `script.js` (`AKfycbzZ…`). Niet door deze audit uitgevoerd —
+zie 2.1 — maar wel tegen de echte, draaiende backend.**
+
+| Wat | Meetwaarde |
+|---|---|
+| HTTP-status | 200 (alle drie de aanroepen) |
+| Payload | 47.630 bytes |
+| Aantal rijen in de respons | 92 |
+| Rijen met een e-mailadres in `contact_info` | 91 |
+| Responstijd koud | 44,9 s en 66,0 s |
+| Responstijd warm | 1,9 s |
+| Oudste `vertrekdatum` in de payload | 1960 |
+| Nieuwste `vertrekdatum` in de payload | 2027 |
+
+Wat deze meting hard maakt:
+
+1. **De backend stuurt de volledige sheet mee, ongefilterd.** Een payload met
+   vertrekdatums van 1960 tot 2027 kan alleen ontstaan als er server-side geen
+   datumfilter is. Dit bevestigt oorzaak 1 in hoofdstuk 5 rechtstreeks, niet
+   langer alleen uit de code afgeleid.
+2. **De opschoning bestaat niet.** Rijen met een vertrekdatum uit 1960 staan er
+   nog steeds in. De FAQ-belofte "wordt automatisch verwijderd 3 dagen na de
+   vertrekdatum" (`index.html:106`) wordt dus in geen enkele vorm waargemaakt;
+   het clientfilter in `script.js:37-43` verbergt ze slechts.
+3. **Contactgegevens van vrijwel elke inzender ooit zijn zonder inlog
+   opvraagbaar.** 91 van de 92 rijen bevatten een e-mailadres, en de hele set
+   komt mee op één publieke URL — ook de 
+   rijen die de bezoeker nooit te zien krijgt.
+4. **De koude start is de dominante vertraging**, niet de omvang van de
+   payload: 44,9 s en 66,0 s koud tegenover 1,9 s warm bij dezelfde 47.630
+   bytes. Een kleinere payload helpt, maar lost de koude start niet op — dat
+   doet alleen een monitor of iets anders dat de implementatie warm houdt.
+
+> Wat deze meting **niet** aantoont: hoeveel van de 92 rijen na filtering
+> overblijven (niet uitgesplitst), of er een redirect-hop naar
+> `script.googleusercontent.com` in zit, en hoe de tijden zich onder
+> gelijktijdige bezoekers gedragen. Voor dat laatste: zie het meetscript in 2.2.
+
+### 2.1 Waarom de audit zelf niet kon meten
 
 De auditomgeving blokkeert al het uitgaande verkeer naar de betrokken hosts op
 proxy-niveau. De proxy registreerde de weigeringen als volgt:
@@ -131,7 +177,7 @@ is opdracht gegeven géén schrijfacties uit te voeren.
 
 | Endpoint | Status | Tijd min | Tijd mediaan | Tijd max | Bytes | Redirects |
 |---|---|---|---|---|---|---|
-| `/exec` hoofd (`AKfycbzZ…`) — de datadump | niet gemeten | niet gemeten | niet gemeten | niet gemeten | niet gemeten | niet gemeten |
+| `/exec` hoofd (`AKfycbzZ…`) — de datadump | **200** | **1,9 s (warm)** | niet bepaald (3 metingen) | **66,0 s (koud)** | **47.630** | niet bepaald |
 | `/exec` edit (`AKfycbx1…`) | niet gemeten | niet gemeten | niet gemeten | niet gemeten | niet gemeten | niet gemeten |
 | Google Fonts `css2?family=…` | niet gemeten | niet gemeten | niet gemeten | niet gemeten | niet gemeten | niet gemeten |
 | jsDelivr `@supabase/supabase-js@2` | niet gemeten | niet gemeten | niet gemeten | niet gemeten | niet gemeten | niet gemeten |
@@ -273,7 +319,9 @@ bij.
 
 ### Oorzaak 1 — Elke pageview trekt de complete sheet over de lijn, ongefilterd en ongecached
 
-Dit is vrijwel zeker de zwaarste post.
+**Status: GEVERIFIEERD tegen de live backend** (zie 2.0: 92 rijen, 47.630 bytes,
+vertrekdatums van 1960 tot 2027). Dit was bij het schrijven van deze audit nog
+een uit de code afgeleide verwachting; het is nu een meting.
 
 - `Code.gs:43` doet `sheet.getDataRange().getValues()`. Dat leest **alle rijen
   die ooit zijn geplaatst**, niet alleen de actuele.
@@ -298,9 +346,15 @@ Dit is vrijwel zeker de zwaarste post.
   is daardoor een unieke URL en dus gegarandeerd een cache-misser — geen
   browsercache, geen tussencache, niets.
 
-*Te bevestigen met een meting:* draai het script uit 2.2 op het hoofdendpoint
-en kijk naar de kolom bytes. Vergelijk dat aantal met het aantal oproepen dat
-op de pagina zichtbaar is. Het verschil is pure verspilling.
+*Bevestigd:* de meting uit 2.0 geeft 47.630 bytes en 92 rijen, met
+vertrekdatums vanaf 1960 — terwijl de pagina alleen de actuele ritten toont.
+Het verschil is pure verspilling, en tegelijk een privacylek: 91 van die 92
+rijen bevatten een e-mailadres.
+
+*Aangepakt in `apps-script/Code.gs` v11 (in deze repo, nog niet uitgerold):*
+het GET-pad filtert de rijen nu vóór het serialiseren, met dezelfde regel die
+`script.js:37-43` in de browser toepast. Er wordt niets uit de sheet
+verwijderd; de rijen blijven staan, ze gaan alleen niet meer over de lijn.
 
 ### Oorzaak 2 — Leesverkeer neemt de script-lock en wordt daardoor geserialiseerd
 
@@ -374,6 +428,54 @@ de Google-laag erachter en in de volgorde waarin alles wordt opgehaald.
 
 ---
 
+## 6. Voorbehoud per bevinding — waar rust elke uitspraak op?
+
+Vier soorten grond, van sterk naar zwak:
+
+- **A — Gemeten tegen de live backend.** Hardste categorie. Bron staat erbij.
+- **B — Gelezen code.** Staat letterlijk in een bestand in deze repo. Voor
+  `index.html`, `script.js`, `edit.html`, `edit.js` en `style.css` is dat
+  tegelijk de live code. Voor `apps-script/Code.gs` **niet**: dat is een
+  handmatige referentiekopie van 20-07-2026 en dus ongeverifieerd, zie de
+  waarschuwing onderaan dit hoofdstuk.
+- **C — README-tekst.** Berust op wat `apps-script/README.md` beweert, niet op
+  code die is ingezien.
+- **D — Afgeleid gedrag.** Redenering over wat de code zal doen, zonder meting.
+  Plausibel, niet bewezen.
+
+| # | Bevinding | Grond | Toelichting |
+|---|---|---|---|
+| 1 | De backend stuurt de volledige sheet ongefilterd mee | **A** | 92 rijen, 47.630 bytes, vertrekdatums 1960-2027 (2.0) |
+| 2 | Er bestaat geen opschoning; verlopen rijen blijven staan | **A** | Rijen uit 1960 zitten nog in de live payload (2.0). Eerder alleen B+C |
+| 3 | Contactgegevens van vrijwel elke inzender ooit zijn publiek opvraagbaar | **A** | 91 van 92 rijen met e-mailadres in de publieke response (2.0) |
+| 4 | Het datumfilter draait pas in de browser | **B** | `script.js:37-43`, live bestand |
+| 5 | De koude start domineert de responstijd | **A** | 44,9 s en 66,0 s koud tegen 1,9 s warm, zelfde payload (2.0) |
+| 6 | Elk verzoek neemt de script-lock, ook een gewone GET | **B**, kopie | `Code.gs:14-15` in de referentiekopie. Dat leesverkeer daardoor serialiseert bij gelijktijdig bezoek is **D** — niet gemeten |
+| 7 | Er is geen licht GET-endpoint; élk verzoek valt door naar de dump | **B**, kopie | Alleen `action === 'insert'` heeft een eigen tak in de kopie |
+| 8 | `"status":"success"` is bruikbaar als monitorkeyword | **B** | Volgt uit `JSON.stringify` in `responseJSON`; **niet** tegen de live respons gecontroleerd op exacte spatiëring |
+| 9 | Een kapotte backend geeft HTTP 200 met `"status":"error"` | **D** | Volgt uit de `catch`-tak in de kopie; niet uitgelokt, dus niet waargenomen |
+| 10 | `?action=status` gaat werken zoals beschreven | **D** | Code is geschreven, niet uitgevoerd. Pas te bevestigen ná uitrollen |
+| 11 | Er bestaat geen server-side `update`-route | **B** + **C** | Geen `update`-tak in de kopie; `README.md` bevestigt dat het bewust zo is |
+| 12 | `edit.js` wijst naar een oudere implementatie-URL | **B** voor de URL zelf, **D** voor "ouder" | Dat `AKfycbx1…` een oudere implementatie is, is afgeleid, niet gecontroleerd |
+| 13 | De Supabase-SDK op `edit.html` wordt nul keer gebruikt | **B** | `grep -c -i supabase edit.js` = 0 |
+| 14 | Google Fonts via `@import` is een seriële render-blocking hop | **B** + **D** | De `@import` staat er (`style.css:2`); het watervalgedrag is standaard browsergedrag, hier niet gemeten |
+| 15 | De POST zonder `Content-Type` vermijdt een CORS-preflight | **D** | Standaardgedrag volgens de Fetch-specificatie; niet in een netwerkpaneel waargenomen |
+| 16 | De live Apps Script-code is gelijk aan `apps-script/Code.gs` | **C**, en zwak | **Dit is het grootste voorbehoud.** Zie hieronder |
+
+> **Het voorbehoud dat alle andere overstijgt.** `apps-script/Code.gs` is een
+> handmatig bijgehouden kopie van 20-07-2026. `script.google.com` is vanuit
+> deze omgeving niet bereikbaar (HTTP 403), dus de live code is nooit ingezien.
+> Elke bevinding met grond **B, kopie** of **C** valt om zodra iemand na
+> 20-07-2026 rechtstreeks in de Apps Script-editor iets heeft gewijzigd zonder
+> dat hier te spiegelen. De metingen uit 2.0 zijn daar ongevoelig voor: die
+> komen van de draaiende backend zelf. Ze bevestigen ook dat de kopie op de
+> twee belangrijkste punten (geen datumfilter, geen opschoning) nog steeds met
+> de werkelijkheid overeenkomt. Dat is geen bewijs dat de rest ongewijzigd is.
+> Loop daarom vóór het plakken de verschil-checklijst na die bij de v11-wijziging
+> is geleverd.
+
+---
+
 ## Samenvatting in één alinea
 
 Er zijn twee Apps Script-implementaties in gebruik, waarvan de tweede
@@ -385,4 +487,10 @@ dat endpoint met keyword `"status":"success"`, maar beter is de lichte
 `?action=status`-route uit hoofdstuk 4 met keyword `"check":"ok"` — die bewijst
 hetzelfde zonder de sheet te lezen en zonder de lock te nemen. Monitor in beide
 gevallen **op inhoud en niet op statuscode**: een kapotte backend geeft hier
-gewoon HTTP 200 terug.
+gewoon HTTP 200 terug. De meting van 6-8-2026 bevestigt de kern hiervan tegen
+de draaiende backend: 92 rijen en 47.630 bytes per pageview, met vertrekdatums
+tot terug in 1960 en een e-mailadres in 91 van die 92 rijen. `Code.gs` v11 in
+deze repo lost de eerste twee punten op (server-side datumfilter én de lichte
+`?action=status`-route), maar is pas van kracht zodra hij handmatig in de Apps
+Script-editor is geplakt en als **nieuwe versie op de bestaande implementatie**
+is uitgerold.
