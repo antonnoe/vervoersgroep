@@ -8,6 +8,12 @@ worden NIET automatisch live; de live code staat in het Apps Script-project
   Deze kopie loopt vóór op de live code en moet handmatig in de Apps
   Script-editor geplakt worden. Zolang dat niet gebeurd is, draait live nog v10.
 - Live sinds: versie 10, 20-07-2026 (implementatie "Live versie")
+- **Live code geverifieerd op 06-08-2026.** De live `Code.gs` is die dag
+  handmatig uit de Google-editor gekopieerd en tegen de checklijst van zeven
+  punten hieronder gelegd. Alle zeven punten klopten: live draait v10 en is
+  functioneel identiek aan de referentiekopie van 20-07-2026. Het enige
+  verschil is trailing whitespace. Er is dus sinds 20-07 niets rechtstreeks in
+  de editor gewijzigd, en de v11-diff kan integraal geplakt worden.
 - Endpoint: de /exec-URL in script.js (implementatie-ID begint met AKfycbzZTLO8e3OQ)
 - Opslag: Google Sheet, tabblad "Oproepen"
 
@@ -56,13 +62,22 @@ worden NIET automatisch live; de live code staat in het Apps Script-project
 - De script-lock wordt nog steeds bij élk verzoek genomen, ook bij een gewone
   leesactie. Alleen `?action=status` omzeilt hem.
 
+Deze drie beperkingen zijn op 06-08-2026 bevestigd in de live v10-code, niet
+alleen in de repo-kopie.
+
 ## Verschil-checklijst — doe dit VÓÓR u plakt
 
-Deze kopie is van 20-07-2026 en is nooit tegen de live code geverifieerd
-(`script.google.com` is niet bereikbaar vanuit de omgeving waarin v11 is
-geschreven). Als er sinds 20-07 rechtstreeks in de editor iets is gewijzigd,
-gooit plakken dat weg. Open dus eerst de live code en controleer deze zeven
-punten. **Wijkt er iets af: niet plakken, eerst melden.**
+> **Afgelopen op 06-08-2026, alle zeven punten klopten.** De live `Code.gs` is
+> die dag handmatig uit de Google-editor gekopieerd en punt voor punt tegen
+> deze lijst gelegd. Uitkomst: live draait v10, functioneel identiek aan de
+> referentiekopie van 20-07-2026, met trailing whitespace als enige verschil.
+> Voor de v11-uitrol is deze controle dus gedaan; de lijst blijft staan als
+> vaste procedure vóór elke vólgende uitrol.
+
+Waarom deze lijst bestaat: de repo-kopie wordt handmatig bijgehouden, dus hij
+kan gaan afwijken zodra iemand rechtstreeks in de Apps Script-editor iets
+wijzigt. Plakken gooit zo'n wijziging weg. Open daarom eerst de live code en
+controleer deze zeven punten. **Wijkt er iets af: niet plakken, eerst melden.**
 
 1. Bovenaan staat `const SHEET_NAME = 'Oproepen';` — en verder geen andere
    instellingen of constanten.
@@ -78,8 +93,10 @@ punten. **Wijkt er iets af: niet plakken, eerst melden.**
 5. Het GET-pad leest `sheet.getDataRange().getValues()`, doet `rows.shift()` voor
    de headers, en heeft **precies één** `.filter(...)`, namelijk
    `row => row[0] && row[0].toString().trim() !== ""`. Staat er al een tweede
-   filter, of een `.slice`, een limiet of een datumcontrole: dan is er al iets
-   gewijzigd sinds 20-07 — niet plakken.
+   filter, of een `.slice`, een limiet of een datumcontrole: dan is er iets
+   gewijzigd sinds de laatst geverifieerde stand — niet plakken.
+   (Geldt zolang v11 nog niet is uitgerold; ná die uitrol hoort het tweede
+   filter `isActueleRit` er juist wél te staan.)
 6. De `.map` geeft negen velden terug, van `id: row[0]` tot en met
    `contact_info: row[8]`, en **geen** `edit_token: row[9]`. Staat `edit_token`
    er wél weer in, dan draait er een oudere versie dan v10.
@@ -90,7 +107,7 @@ punten. **Wijkt er iets af: niet plakken, eerst melden.**
 
 Zit er in de live code iets wat hierboven niet voorkomt — een extra functie, een
 extra route, een trigger — dan mist deze kopie dat, en gaat het bij plakken
-verloren.
+verloren. Bij de controle van 06-08-2026 is niets van dien aard aangetroffen.
 
 ## Uitrollen — LET OP
 
