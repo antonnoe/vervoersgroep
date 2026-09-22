@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/ritten.js": {
+      "maxDuration": 60
+    }
+  }
+}

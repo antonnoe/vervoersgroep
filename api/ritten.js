@@ -7,8 +7,14 @@
 
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZTLO8e3OQCC6iZBGXCYz8YVLBH23att20npzUiP3uTsDZrq8zc3Xs8hZ9lR3BqNrU7g/exec';
 
-const GET_TIMEOUT_MS = 10000;
-const POST_TIMEOUT_MS = 15000;
+// Apps Script doet er vanaf Vercel structureel meer dan tien seconden over
+// (gemeten 22-09-2026: twee rondes liepen beide op de afbreektijd van 10s stuk,
+// terwijl dezelfde aanroep vanuit een browser wel slaagt). De afbreektijd staat
+// daarom ruim, met maxDuration 60 in vercel.json als bovengrens.
+const GET_TIMEOUT_MS = 45000;
+const POST_TIMEOUT_MS = 45000;
+
+const USER_AGENT = 'Mozilla/5.0 (compatible; VervoershubProxy/1.0; +https://www.nederlanders.fr)';
 
 function setCorsHeaders(res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,13 +26,19 @@ async function fetchMetTimeout(url, options, timeoutMs) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-        return await fetch(url, Object.assign({}, options, { signal: controller.signal }));
+        const opties = Object.assign({}, options, { signal: controller.signal });
+        opties.headers = Object.assign({ 'User-Agent': USER_AGENT }, options.headers || {});
+        return await fetch(url, opties);
     } finally {
         clearTimeout(timer);
     }
 }
 
-async function handleGet(res) {
+async function handleGet(req, res) {
+    // Met ?verse=1 slaat de rand van Vercel dit antwoord niet op. Dat is de
+    // ingang voor de monitor: die moet Google meten, niet de cache.
+    const versGevraagd = Boolean(req.query && req.query.verse);
+    const begonnen = Date.now();
     const url = `${GOOGLE_SCRIPT_URL}?timestamp=${Date.now()}`;
 
     let tekst;
@@ -39,7 +51,7 @@ async function handleGet(res) {
         }
     } catch (error) {
         const message = error && error.name === 'AbortError'
-            ? 'Google reageerde niet binnen 10 seconden.'
+            ? `Google reageerde niet binnen ${GET_TIMEOUT_MS / 1000} seconden.`
             : 'Kon de data niet ophalen van Google.';
         res.status(502).json({ status: 'error', message });
         return;
@@ -60,7 +72,10 @@ async function handleGet(res) {
     }
 
     // Bij een hapering van Google blijft de laatste goede lijst zichtbaar.
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=600');
+    res.setHeader('X-Bron-Duur-Ms', String(Date.now() - begonnen));
+    res.setHeader('Cache-Control', versGevraagd
+        ? 'no-store'
+        : 's-maxage=60, stale-while-revalidate=86400');
     res.status(200).json(result);
 }
 
@@ -82,7 +97,7 @@ async function handlePost(req, res) {
         res.status(response.status).send(tekst);
     } catch (error) {
         const message = error && error.name === 'AbortError'
-            ? 'Google reageerde niet binnen 15 seconden.'
+            ? `Google reageerde niet binnen ${POST_TIMEOUT_MS / 1000} seconden.`
             : 'Kon de oproep niet doorgeven aan Google.';
         res.setHeader('Cache-Control', 'no-store');
         res.status(502).json({ status: 'error', message });
@@ -98,7 +113,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-        await handleGet(res);
+        await handleGet(req, res);
         return;
     }
 
