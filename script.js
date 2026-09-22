@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- CONFIGURATIE ---
     // Google Apps Script URL
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZTLO8e3OQCC6iZBGXCYz8YVLBH23att20npzUiP3uTsDZrq8zc3Xs8hZ9lR3BqNrU7g/exec';
+    // Server-side doorgeefluik: voorkomt dat Google-cookies van de bezoeker meegaan
+    const PROXY_URL = 'https://vervoersgroep.vercel.app/api/ritten';
 
     const rittenLijstContainer = document.getElementById('ritten-lijst');
     const vervoerForm = document.getElementById('vervoer-form');
@@ -20,13 +22,13 @@ document.addEventListener('DOMContentLoaded', function() {
         rittenLijstContainer.parentElement.insertBefore(laadMelding, rittenLijstContainer);
 
         try {
-            const response = await fetch(`${GOOGLE_SCRIPT_URL}?timestamp=${new Date().getTime()}`);
-            if (!response.ok) throw new Error('Kon de data niet ophalen van de server.');
-            
-            const result = await response.json();
-            if (result.status !== 'success') throw new Error(result.message);
-            
-            let data = result.data;
+            let data;
+            try {
+                data = await haalRittenOp(PROXY_URL);
+            } catch (proxyError) {
+                console.warn('Doorgeefluik niet bereikbaar, val terug op Google:', proxyError);
+                data = await haalRittenOp(GOOGLE_SCRIPT_URL);
+            }
             // Sorteer op aanmaakdatum (nieuwste eerst)
             data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             
@@ -70,6 +72,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    async function haalRittenOp(bronUrl) {
+        const response = await fetch(`${bronUrl}?timestamp=${new Date().getTime()}`);
+        if (!response.ok) throw new Error('Kon de data niet ophalen van de server.');
+
+        const result = await response.json();
+        if (result.status !== 'success') throw new Error(result.message);
+
+        return result.data;
+    }
+
     function renderGroep(data, container) {
         if (!container) return;
         container.innerHTML = '';
@@ -137,7 +149,8 @@ document.addEventListener('DOMContentLoaded', function() {
         ritData.action = 'insert'; 
 
         try {
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
+            // Alleen via het doorgeefluik: terugval zou een dubbele oproep kunnen plaatsen
+            const response = await fetch(PROXY_URL, {
                 method: 'POST',
                 body: JSON.stringify(ritData)
             });
