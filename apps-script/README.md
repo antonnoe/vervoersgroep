@@ -4,11 +4,17 @@
 worden NIET automatisch live; de live code staat in het Apps Script-project
 "Vervoershub", gekoppeld aan de ritten-spreadsheet (Extensies → Apps Script).
 
-- Versie in deze repo: **v11, 06-08-2026 — NOG NIET UITGEROLD.**
+- Versie in deze repo: **v12, 22-09-2026 — NOG NIET UITGEROLD.**
   Deze kopie loopt vóór op de live code en moet handmatig in de Apps
-  Script-editor geplakt worden. Zolang dat niet gebeurd is, draait live nog v10.
-- Live sinds: versie 10, 20-07-2026 (implementatie "Live versie")
-- **Live code geverifieerd op 06-08-2026.** De live `Code.gs` is die dag
+  Script-editor geplakt worden. Zolang dat niet gebeurd is, draait live v11.
+- Live sinds: versie 11 (datum van uitrol niet vastgelegd, in elk geval vóór
+  22-09-2026)
+- **Live code geverifieerd op 22-09-2026.** Anton heeft de live `Code.gs` die
+  dag uit de Google-editor gekopieerd. Die is regel voor regel vergeleken met
+  de repo-kopie van v11 en bleek identiek, op een afsluitende lege regel na.
+  Daarmee vervalt de eerdere aantekening hieronder dat v11 nog niet was
+  uitgerold: dat was op 06-08-2026 juist, maar v11 is sindsdien live gezet.
+- **Eerdere verificatie, 06-08-2026.** De live `Code.gs` is die dag
   handmatig uit de Google-editor gekopieerd en tegen de checklijst van zeven
   punten hieronder gelegd. Alle zeven punten klopten: live draait v10 en is
   functioneel identiek aan de referentiekopie van 20-07-2026. Het enige
@@ -19,7 +25,39 @@ worden NIET automatisch live; de live code staat in het Apps Script-project
 
 ## Wijzigingen per versie
 
-### v11 — 06-08-2026 (in deze repo, nog niet live)
+### v12 — 22-09-2026 (in deze repo, nog niet live)
+
+Alleen snelheid en beveiliging van het leespad. De publieke JSON is
+byte-identiek aan die van v11; dat is nagerekend door beide versies in een
+nagebootste spreadsheet te draaien met dezelfde rijen, inclusief randgevallen
+(lege vertrekdatum, onleesbare datum, lege rij tussendoor, grens van 3 en van
+5 dagen). Aanleiding: de nieuwe monitorcheck mat op 22-09-2026 uitschieters
+tot 41 seconden op het ophalen van de lijst.
+
+1. **Lezen neemt geen script-lock meer.** In v11 nam élk verzoek, ook een
+   gewone GET, `LockService.getScriptLock()`. Alle bezoekers stonden daardoor
+   in dezelfde rij als elke plaatsing. De lock zit nu alleen nog om
+   `appendRow()` heen en wordt dus milliseconden vastgehouden in plaats van de
+   volle duur van een sheetlezing.
+2. **Korte cache op de publieke lijst.** `CacheService` bewaart de JSON 30
+   seconden onder de sleutel `oproepen_publiek_v12`. Alleen de eerste aanroep
+   binnen dat venster leest de spreadsheet. Bij het plaatsen van een oproep
+   wordt de cache geleegd, zodat een nieuwe rit meteen zichtbaar is. Is de
+   JSON groter dan 90.000 tekens, dan wordt er niet gecachet (CacheService
+   weigert items boven ongeveer 100 KB) en werkt alles als voorheen.
+3. **Alleen de publieke kolommen worden gelezen.** `getRange(2, 1, n, 9)` in
+   plaats van `getDataRange()`: de headerrij en kolom J (`edit_token`) worden
+   niet meer opgehaald. De tokens stonden al niet in de response, maar werden
+   wel ingelezen.
+4. **Gedragswijziging, bewust:** lukt het bij een plaatsing niet om de lock
+   binnen 20 seconden te krijgen, dan geeft de backend nu een foutmelding in
+   plaats van tóch te schrijven zonder lock. Dat kan in de praktijk vrijwel
+   niet meer voorkomen, juist omdat lezen de lock niet meer bezet houdt.
+5. `doGet` en `doPost` zijn opgesplitst in `leesOproepen()` en
+   `plaatsOproep()`; `handleRequest()` bestaat niet meer. `isActueleRit()`,
+   `statusCheck()` en `getSheet()` zijn ongewijzigd.
+
+### v11 — 06-08-2026 (live, geverifieerd op 22-09-2026)
 
 1. **Server-side datumfilter in het GET-pad.** De GET-response bevat alleen nog
    ritten tot en met 3 dagen na de vertrekdatum, plus alle toekomstige ritten.
