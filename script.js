@@ -13,7 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Start de pagina: laad alleen de ritten (geen beheer/edit logica meer)
     laadRitten();
 
-    async function laadRitten() {
+    async function laadRitten(opties) {
+        // Met { vers: true } vraagt het doorgeefluik een ongecachte lijst op.
+        // Nodig vlak na het plaatsen van een oproep: anders kan de rand van
+        // Vercel nog even de oude lijst serveren en lijkt de oproep weg.
+        const vers = Boolean(opties && opties.vers);
+
         // Verberg de lijst en toon een laadmelding
         rittenLijstContainer.style.display = 'none';
         const laadMelding = document.createElement('p');
@@ -24,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             let data;
             try {
-                data = await haalRittenOp(PROXY_URL);
+                data = await haalRittenOp(PROXY_URL, vers);
             } catch (proxyError) {
                 console.warn('Doorgeefluik niet bereikbaar, val terug op Google:', proxyError);
                 data = await haalRittenOp(GOOGLE_SCRIPT_URL);
@@ -72,8 +77,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    async function haalRittenOp(bronUrl) {
-        const response = await fetch(`${bronUrl}?timestamp=${new Date().getTime()}`);
+    async function haalRittenOp(bronUrl, vers) {
+        const versParam = vers ? '&verse=1' : '';
+        const response = await fetch(`${bronUrl}?timestamp=${new Date().getTime()}${versParam}`);
         if (!response.ok) throw new Error('Kon de data niet ophalen van de server.');
 
         const result = await response.json();
@@ -180,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
             vervoerForm.reset();
             
             // Herlaad de lijst op de achtergrond zodat de nieuwe rit zichtbaar is als men op OK klikt
-            laadRitten();
+            laadRitten({ vers: true });
 
         } catch (error) {
             console.error('Fout bij plaatsen:', error);
